@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crestview Septic Estimator</title>
+<title>Septic System Estimator</title>
 
 <style>
     body {
@@ -26,7 +26,7 @@
     h1 {
         text-align: center;
         color: #facc15;
-        font-size: 36px;
+        font-size: 34px;
         margin-bottom: 20px;
         letter-spacing: 1px;
     }
@@ -86,7 +86,7 @@
 
 <div class="container">
 
-<h1>CRESTVIEW SEPTIC ESTIMATOR</h1>
+<h1>SEPTIC SYSTEM ESTIMATOR</h1>
 
 <div class="section">
     <div class="section-title">Job Info</div>
@@ -96,9 +96,7 @@
 
 <div class="section">
     <div class="section-title">Presets</div>
-    <button class="btn-blue" onclick="presetStandard()">Standard – Normal Access</button>
-    <button class="btn-blue" onclick="presetTight()">Standard – Tight Access</button>
-    <button class="btn-blue" onclick="presetLarge()">Large System</button>
+    <button class="btn-blue" onclick="presetStandard()">Standard Job</button>
     <button class="btn-blue" onclick="presetHeavy()">Heavy Site Work</button>
 </div>
 
@@ -126,16 +124,16 @@
     <input id="treeCount" type="number" placeholder="Tree Count">
     <select id="treeSize">
         <option value="0">Select Tree Size</option>
-        <option value="500">Small (up to 6”)</option>
-        <option value="1000">Medium (6–12”)</option>
-        <option value="1500">Large (12”+)</option>
+        <option value="500">Small</option>
+        <option value="1000">Medium</option>
+        <option value="1500">Large</option>
     </select>
 </div>
 
 <div class="section">
     <div class="section-title">Labor / Site Work / Mobilization</div>
-    <input id="laborBase" type="number" placeholder="Base Labor Cost ($)">
-    <input id="markupPercent" type="number" placeholder="Markup % (20–25 typical)">
+    <input id="laborBase" type="number" placeholder="Total Labor Cost ($)">
+    <input id="markupPercent" type="number" placeholder="Markup % (20–25)">
 </div>
 
 <button class="btn-yellow" onclick="calculateTotal()">CALCULATE TOTAL</button>
@@ -150,10 +148,15 @@ function getVal(id) {
     return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function presetStandard() { document.getElementById("laborBase").value = 20000; }
-function presetTight() { document.getElementById("laborBase").value = 22500; }
-function presetLarge() { document.getElementById("laborBase").value = 25000; }
-function presetHeavy() { document.getElementById("laborBase").value = 27500; }
+function presetStandard() {
+    document.getElementById("laborBase").value = 20000;
+    document.getElementById("markupPercent").value = 22;
+}
+
+function presetHeavy() {
+    document.getElementById("laborBase").value = 27500;
+    document.getElementById("markupPercent").value = 25;
+}
 
 function calculateTotal() {
     const tank = getVal("tankCost");
@@ -189,52 +192,31 @@ function generateCustomerQuote() {
 
     const customer = document.getElementById("customerName").value || "Customer";
     const location = document.getElementById("jobLocation").value || "Job Site";
-    const totalText = document.getElementById("totalOutput").innerText.replace("$", "");
-    const total = parseFloat(totalText);
+    const total = parseFloat(document.getElementById("totalOutput").innerText.replace("$",""));
 
     const deposit = (total * 0.10).toFixed(2);
-    const paymentTerms = total > 15000 ? 
-        "Progress payments required as work progresses." : 
-        "Payment due upon completion.";
+    const paymentTerms = total > 15000
+        ? "Progress payments required for projects over $15,000."
+        : "Payment due upon completion.";
 
     const win = window.open('', '_blank');
-
     win.document.write(`
         <html>
-        <head>
-            <title>Proposal</title>
-            <style>
-                body { font-family: Arial; padding: 40px; }
-                h1 { text-align: center; }
-                .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
-            </style>
-        </head>
-        <body>
-
-        <h1>Crestview Construction LLC</h1>
-
+        <body style="font-family:Arial;padding:40px">
+        <h1 style="text-align:center">Crestview Construction LLC</h1>
         <p><strong>Customer:</strong> ${customer}<br>
         <strong>Location:</strong> ${location}</p>
-
-        <p>Scope of Work: Septic system installation including excavation, materials, labor, equipment, and site restoration per approved plans and local codes.</p>
 
         <h2>Total Project Price: $${total.toFixed(2)}</h2>
         <p><strong>Deposit to Schedule:</strong> $${deposit}</p>
         <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
 
-        <p><strong>Acceptance of Proposal:</strong></p>
-        <div class="line"></div>
-        <p>Customer Signature</p>
-
-        <div class="line"></div>
-        <p>Date</p>
-
+        <br><br>
+        <p>Customer Signature _________________________ Date __________</p>
         </body>
         </html>
     `);
-
     win.document.close();
-    win.focus();
     win.print();
 }
 </script>
