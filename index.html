@@ -1,0 +1,128 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        padding: 20px;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #f9fafb;
+    }
+
+    .container {
+        background: #020617;
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    label {
+        display: block;
+        margin-top: 12px;
+        font-weight: bold;
+        color: #cbd5f5;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 6px;
+        border-radius: 6px;
+        border: 1px solid #334155;
+        background: #020617;
+        color: #f9fafb;
+        font-size: 16px;
+    }
+
+    input::placeholder {
+        color: #64748b;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 2px rgba(56,189,248,0.3);
+    }
+
+    .row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .row > div {
+        flex: 1;
+    }
+
+    hr {
+        margin: 24px 0;
+        border: none;
+        border-top: 1px solid #1e293b;
+    }
+
+    .buttons button {
+        padding: 12px 14px;
+        margin: 6px 4px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .calculate { background: #2563eb; }
+    .verbal { background: #f97316; }
+    .save { background: #16a34a; }
+    .print { background: #7c3aed; }
+
+    .buttons button:hover {
+        filter: brightness(1.15);
+    }
+
+    .results {
+        margin-top: 20px;
+        background: #020617;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #1e293b;
+    }
+
+    .total {
+        font-size: 24px;
+        font-weight: bold;
+        color: #22c55e;
+    }
+
+    #proposal {
+        display: none;
+        background: #020617;
+        padding: 20px;
+        margin-top: 20px;
+        color: #f9fafb;
+    }
+
+    #photoPreview img {
+        max-width: 150px;
+        margin: 5px;
+        border-radius: 6px;
+        border: 1px solid #1e293b;
+    }
+
+    /* Checkbox styling */
+    input[type="checkbox"] {
+        width: auto;
+        transform: scale(1.2);
+        margin-right: 8px;
+    }
+
+    /* Mobile spacing */
+    @media (max-width: 600px) {
+        .row {
+            flex-direction: column;
+        }
+    }
+</style>
