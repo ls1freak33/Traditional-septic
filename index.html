@@ -1,302 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Septic System Pro Estimator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crestview Estimator</title>
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #0b0b0b;
-    color: #ffffff;
-    padding: 15px;
-}
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at top, #0f0f0f 0%, #000000 60%);
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
 
-h1, h2 {
-    text-align: center;
-    color: #ffffff;
-}
+        .app-container {
+            max-width: 600px;
+            margin: 15px auto;
+            padding: 15px;
+            border: 2px solid #facc15;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #0b0b0b, #000000);
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.15);
+        }
 
-.container {
-    background: #111111;
-    border: 2px solid #facc15;
-    border-radius: 10px;
-    padding: 20px;
-    max-width: 900px;
-    margin: auto;
-    box-shadow: 0 0 20px rgba(250, 204, 21, 0.25);
-}
+        .app-title {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: #facc15;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+        }
 
-label {
-    display: block;
-    margin-top: 12px;
-    font-weight: bold;
-    color: #facc15;
-}
+        .section-card {
+            border: 1px solid #facc15;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 18px;
+            background: linear-gradient(180deg, #111111, #050505);
+        }
 
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border-radius: 6px;
-    border: 1px solid #facc15;
-    background: #000000;
-    color: #ffffff;
-    font-size: 18px;
-}
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #facc15;
+            margin-bottom: 10px;
+        }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: #fde047;
-    box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.4);
-}
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #facc15;
+            background: #000000;
+            color: #ffffff;
+            font-size: 15px;
+        }
 
-.row {
-    display: flex;
-    gap: 10px;
-}
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 900;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
 
-.row > div {
-    flex: 1;
-}
+        .preset-btn {
+            background: linear-gradient(180deg, #3b82f6, #2563eb);
+            color: #ffffff;
+        }
 
-hr {
-    margin: 28px 0;
-    border: none;
-    border-top: 1px solid #facc15;
-}
+        .calculate-btn {
+            background: linear-gradient(180deg, #facc15, #eab308);
+            color: #000000;
+        }
 
-.buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
-}
+        .quote-btn {
+            background: linear-gradient(180deg, #22c55e, #16a34a);
+            color: #000000;
+        }
 
-.buttons button {
-    padding: 18px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #000;
-    font-weight: bold;
-    font-size: 20px;
-    width: 100%;
-}
-
-.calculate { background: #facc15; }
-.verbal { background: #fb923c; }
-
-.buttons button:hover {
-    filter: brightness(1.1);
-}
-
-.total {
-    font-size: 30px;
-    font-weight: bold;
-    color: #4ade80;
-    text-align: center;
-    margin-top: 25px;
-}
-
-input[type="checkbox"] {
-    width: auto;
-    transform: scale(1.5);
-    margin-right: 10px;
-}
-
-/* MOBILE FIELD OPTIMIZATION */
-@media (max-width: 768px) {
-    body { padding: 8px; }
-    .container { padding: 15px; }
-    h1 { font-size: 24px; }
-    h2 { font-size: 20px; margin-top: 20px; }
-}
-</style>
+        .total-box {
+            font-size: 24px;
+            font-weight: bold;
+            color: #facc15;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
-<h1>Septic System Pro Estimator</h1>
+<div class="app-container">
 
-<h2>Job Info</h2>
-<div class="row">
-    <div>
-        <label>Customer Name</label>
-        <input type="text" id="customerName">
+    <div class="app-title">CRESTVIEW ESTIMATOR</div>
+
+    <!-- JOB INFO -->
+    <div class="section-card">
+        <div class="section-title">Job Info</div>
+        <input id="customerName" placeholder="Customer Name">
+        <input id="jobNumber" placeholder="Job Number">
+        <input id="jobLocation" placeholder="Job Location">
     </div>
-    <div>
-        <label>Job #</label>
-        <input type="text" id="jobNumber">
+
+    <!-- PRESETS -->
+    <div class="section-card">
+        <div class="section-title">Presets</div>
+        <button class="preset-btn" onclick="presetStandard()">STANDARD – NORMAL ACCESS</button>
+        <button class="preset-btn" onclick="presetTight()">STANDARD – TIGHT ACCESS</button>
+        <button class="preset-btn" onclick="presetLarge()">LARGE SYSTEM</button>
+        <button class="preset-btn" onclick="presetHeavy()">HEAVY SITE WORK</button>
     </div>
-</div>
 
-<label>Job Location</label>
-<input type="text" id="jobLocation">
-
-<hr>
-
-<h2>System Details</h2>
-
-<div class="row">
-    <div>
-        <label>Tank Cost ($)</label>
-        <input type="number" id="tankCost" value="1200">
-    </div>
-    <div>
-        <label>Field Line Length (ft)</label>
-        <input type="number" id="fieldLength" value="500">
-    </div>
-</div>
-
-<div class="row">
-    <div>
-        <label>Trench Width (inches)</label>
-        <input type="number" id="trenchWidth" value="36">
-    </div>
-    <div>
-        <label>Trench Depth (inches)</label>
-        <input type="number" id="trenchDepth" value="36">
-    </div>
-</div>
-
-<label>Pipe $ / ft</label>
-<input type="number" id="pipeCost" value="3">
-
-<hr>
-
-<h2>Site Conditions (1 Man + 1 Machine / 4 Day Jobs)</h2>
-
-<label>Base Complexity</label>
-<select id="complexity">
-    <option value="0">Simple</option>
-    <option value="750">Moderate</option>
-    <option value="1500">Difficult</option>
-</select>
-
-<label>Access / Soil</label>
-<select id="access">
-    <option value="0">Normal</option>
-    <option value="750">Limited Access</option>
-    <option value="1500">Rock / Bad Soil</option>
-</select>
-
-<label>
-    <input type="checkbox" id="inspectionHold">
-    Inspection Hold / Finish Day (Skid Steer Staged)
-</label>
-
-<hr>
-
-<h2>Tree Clearing (You Do It)</h2>
-
-<div class="row">
-    <div>
-        <label>Tree Count</label>
-        <input type="number" id="treeCount" value="0">
-    </div>
-    <div>
-        <label>Tree Size</label>
-        <select id="treeSize">
-            <option value="150">6–12"</option>
-            <option value="300">12–24"</option>
-            <option value="500">24"+</option>
+    <!-- CREW -->
+    <div class="section-card">
+        <div class="section-title">Crew & Equipment</div>
+        <select id="crewSetup">
+            <option value="1">1 Man / 1 Machine</option>
+            <option value="2">2 Man / 2 Machines</option>
         </select>
     </div>
-</div>
 
-<hr>
-
-<h2>Rock (Hauled In)</h2>
-
-<div class="row">
-    <div>
-        <label>Rock Tons</label>
-        <input type="number" id="rockTons" value="0">
+    <!-- SYSTEM -->
+    <div class="section-card">
+        <div class="section-title">System Details</div>
+        <input id="tankCost" type="number" placeholder="Septic Tank Cost">
+        <input id="fieldLength" type="number" placeholder="Field Line Length (ft)">
+        <input id="pipeCost" type="number" placeholder="Pipe Cost per ft">
     </div>
-    <div>
-        <label>Cost per Ton ($)</label>
-        <input type="number" id="rockCost" value="17">
+
+    <!-- ROCK -->
+    <div class="section-card">
+        <div class="section-title">Rock</div>
+        <input id="rockTons" type="number" placeholder="Rock Tons">
+        <input id="rockCost" type="number" value="17" placeholder="Cost per Ton">
     </div>
-</div>
 
-<div class="row">
-    <div>
-        <label>Haul Distance (miles one way)</label>
-        <input type="number" id="haulDistance" value="0">
+    <!-- HAUL -->
+    <div class="section-card">
+        <div class="section-title">Hauling</div>
+        <input id="haulDistance" type="number" placeholder="Miles to Pit">
+        <input id="haulRate" type="number" placeholder="Haul Rate (cents per mile)">
     </div>
-    <div>
-        <label>Haul Cost (cents per mile)</label>
-        <input type="number" id="haulRate" value="35">
+
+    <!-- TREES -->
+    <div class="section-card">
+        <div class="section-title">Tree Clearing (if needed)</div>
+        <input id="treeCount" type="number" placeholder="Number of Trees">
+        <select id="treeSize">
+            <option value="500">Small</option>
+            <option value="1000">Medium</option>
+            <option value="1500">Large</option>
+        </select>
     </div>
-</div>
 
-<hr>
+    <!-- LABOR -->
+    <div class="section-card">
+        <div class="section-title">Labor / Site Work / Mobilization</div>
+        <input id="laborCost" type="number" placeholder="Labor / Equipment Base">
+        <input id="markup" type="number" value="0" placeholder="Markup % (optional)">
+    </div>
 
-<h2>Labor + Equipment</h2>
+    <!-- ACTIONS -->
+    <button class="calculate-btn" onclick="calculateQuote()">CALCULATE TOTAL</button>
+    <button class="quote-btn" onclick="generateQuote()">GENERATE CUSTOMER QUOTE</button>
 
-<label>Labor + Equipment Base Cost ($)</label>
-<input type="number" id="laborCost" value="5200">
+    <div class="total-box" id="totalOutput">$0.00</div>
 
-<label>Markup %</label>
-<input type="number" id="markup" value="20">
-
-<div class="buttons">
-    <button class="calculate" onclick="calculateQuote()">CALCULATE QUOTE</button>
-    <button class="verbal" onclick="verbalQuote()">VERBAL QUOTE</button>
-</div>
-
-<div class="total" id="totalOutput">$0.00</div>
 </div>
 
 <script>
-function calculateQuote() {
+    function presetStandard() {
+        document.getElementById("crewSetup").value = "1";
+        document.getElementById("laborCost").value = 20000;
+    }
 
-    const tank = parseFloat(document.getElementById("tankCost").value) || 0;
-    const fieldLength = parseFloat(document.getElementById("fieldLength").value) || 0;
-    const pipeCost = parseFloat(document.getElementById("pipeCost").value) || 0;
+    function presetTight() {
+        document.getElementById("crewSetup").value = "2";
+        document.getElementById("laborCost").value = 22500;
+    }
 
-    const trenchWidthIn = parseFloat(document.getElementById("trenchWidth").value) || 0;
-    const trenchDepthIn = parseFloat(document.getElementById("trenchDepth").value) || 0;
+    function presetLarge() {
+        document.getElementById("crewSetup").value = "2";
+        document.getElementById("laborCost").value = 25000;
+    }
 
-    const complexity = parseFloat(document.getElementById("complexity").value) || 0;
-    const access = parseFloat(document.getElementById("access").value) || 0;
+    function presetHeavy() {
+        document.getElementById("crewSetup").value = "2";
+        document.getElementById("laborCost").value = 27500;
+    }
 
-    const inspectionHold = document.getElementById("inspectionHold").checked ? 1000 : 0;
+    function calculateQuote() {
 
-    const treeCount = parseFloat(document.getElementById("treeCount").value) || 0;
-    const treeSizeCost = parseFloat(document.getElementById("treeSize").value) || 0;
-    const treeCost = treeCount * treeSizeCost;
+        const tank = parseFloat(document.getElementById("tankCost").value) || 0;
+        const fieldLength = parseFloat(document.getElementById("fieldLength").value) || 0;
+        const pipeCost = parseFloat(document.getElementById("pipeCost").value) || 0;
 
-    const rockTons = parseFloat(document.getElementById("rockTons").value) || 0;
-    const rockCostPerTon = parseFloat(document.getElementById("rockCost").value) || 0;
-    const rockMaterial = rockTons * rockCostPerTon;
+        const rockTons = parseFloat(document.getElementById("rockTons").value) || 0;
+        const rockCost = parseFloat(document.getElementById("rockCost").value) || 0;
 
-    const haulDistance = parseFloat(document.getElementById("haulDistance").value) || 0;
-    const haulRateCents = parseFloat(document.getElementById("haulRate").value) || 0;
-    const haulRate = haulRateCents / 100;
-    const haulCost = haulDistance * haulRate * 2;
+        const haulMiles = parseFloat(document.getElementById("haulDistance").value) || 0;
+        const haulRate = parseFloat(document.getElementById("haulRate").value) || 0;
 
-    const labor = parseFloat(document.getElementById("laborCost").value) || 0;
-    const markup = parseFloat(document.getElementById("markup").value) || 0;
+        const trees = parseFloat(document.getElementById("treeCount").value) || 0;
+        const treeSize = parseFloat(document.getElementById("treeSize").value) || 0;
 
-    const pipeTotal = fieldLength * pipeCost;
+        const labor = parseFloat(document.getElementById("laborCost").value) || 0;
+        const markup = parseFloat(document.getElementById("markup").value) || 0;
 
-    let subtotal = tank + pipeTotal + complexity + access + inspectionHold + treeCost + rockMaterial + haulCost + labor;
+        const pipeTotal = fieldLength * pipeCost;
+        const rockTotal = rockTons * rockCost;
+        const haulTotal = (haulMiles * haulRate * 2) / 100;
+        const treeTotal = trees * treeSize;
 
-    if (subtotal < 9000) subtotal = 9000;
+        const subtotal = tank + pipeTotal + rockTotal + haulTotal + treeTotal + labor;
+        const total = subtotal + (subtotal * (markup / 100));
 
-    const total = subtotal + (subtotal * (markup / 100));
+        document.getElementById("totalOutput").innerText = "$" + total.toFixed(2);
+    }
 
-    document.getElementById("totalOutput").innerText = "$" + total.toFixed(2);
-}
+    function generateQuote() {
 
-function verbalQuote() {
-    calculateQuote();
-    const total = document.getElementById("totalOutput").innerText;
-    alert("Verbal Quote: " + total);
-}
+        const customer = document.getElementById("customerName").value || "Customer";
+        const location = document.getElementById("jobLocation").value || "Job Site";
+        const today = new Date().toLocaleDateString();
+
+        const totalText = document.getElementById("totalOutput").innerText;
+
+        let paymentTerms = "Payment due upon completion.";
+        let depositNote = "10% deposit required to lock in schedule.";
+
+        const totalValue = parseFloat(totalText.replace("$","")) || 0;
+
+        if (totalValue > 15000) {
+            paymentTerms = "Progress payments required as work progresses.";
+        }
+
+        const quoteWindow = window.open('', '_blank');
+
+        quoteWindow.document.write(`
+        <html>
+        <head>
+            <title>Proposal</title>
+            <style>
+                body { font-family: Arial; padding: 40px; }
+                h1 { text-align: center; }
+                .section { margin-top: 25px; }
+                .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
+            </style>
+        </head>
+        <body>
+
+            <h1>Crestview Construction LLC</h1>
+            <p><strong>Customer:</strong> ${customer}<br>
+            <strong>Location:</strong> ${location}<br>
+            <strong>Date:</strong> ${today}</p>
+
+            <div class="section">
+                <p>Crestview Construction LLC will provide all labor, equipment, materials, and site work required to install the septic system per approved plans and local code.</p>
+            </div>
+
+            <div class="section">
+                <h3>Total Project Price: ${totalText}</h3>
+                <p><strong>Deposit:</strong> ${depositNote}</p>
+                <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
+            </div>
+
+            <div class="section">
+                <p><strong>Acceptance of Proposal:</strong></p>
+                <div class="line"></div>
+                <p>Customer Signature</p>
+
+                <div class="line"></div>
+                <p>Date</p>
+            </div>
+
+            <script>window.print();</script>
+
+        </body>
+        </html>
+        `);
+
+        quoteWindow.document.close();
+    }
 </script>
 
 </body>
