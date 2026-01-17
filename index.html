@@ -3,221 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Septic System Estimator</title>
+<title>Construction Estimator</title>
 
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        background: #000;
-        font-family: Arial, sans-serif;
-        color: #fff;
-    }
+body {
+    margin: 0;
+    background: #000;
+    font-family: Arial, sans-serif;
+    color: #fff;
+}
 
-    .container {
-        max-width: 650px;
-        margin: auto;
-        padding: 15px;
-        border: 2px solid #facc15;
-        border-radius: 12px;
-        background: #050505;
-    }
+header {
+    background: #000;
+    border-bottom: 2px solid #facc15;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    h1 {
-        text-align: center;
-        color: #facc15;
-        font-size: 34px;
-        margin-bottom: 20px;
-        letter-spacing: 1px;
-    }
+header h1 {
+    color: #facc15;
+    font-size: 20px;
+    margin: 0;
+}
 
-    .section {
-        border: 1px solid #facc15;
-        border-radius: 10px;
-        padding: 12px;
-        margin-bottom: 16px;
-        background: #0b0b0b;
-    }
+.menu button {
+    background: #facc15;
+    border: none;
+    padding: 8px 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+}
 
-    .section-title {
-        color: #facc15;
-        font-size: 20px;
-        margin-bottom: 10px;
-        font-weight: bold;
-    }
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 15px;
+}
 
-    input, select {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        background: #000;
-        border: 1px solid #facc15;
-        border-radius: 6px;
-        color: #fff;
-        font-size: 15px;
-    }
+.section {
+    border: 1px solid #facc15;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 16px;
+    background: #0b0b0b;
+}
 
-    button {
-        width: 100%;
-        padding: 14px;
-        margin-top: 10px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+.section-title {
+    color: #facc15;
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
 
-    .btn-yellow { background: #facc15; color: #000; }
-    .btn-green { background: #22c55e; color: #000; }
-    .btn-blue { background: #2563eb; color: #fff; }
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #000;
+    border: 1px solid #facc15;
+    border-radius: 6px;
+    color: #fff;
+}
 
-    .total {
-        text-align: center;
-        font-size: 30px;
-        font-weight: bold;
-        color: #facc15;
-        margin-top: 20px;
-    }
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-yellow { background: #facc15; color: #000; }
+.btn-green { background: #22c55e; color: #000; }
+.btn-blue { background: #2563eb; color: #fff; }
+
+.total {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #facc15;
+    margin-top: 15px;
+}
+
+.hidden { display: none; }
 </style>
 </head>
 
 <body>
 
+<header>
+    <h1>Construction Estimator</h1>
+    <div class="menu">
+        <button onclick="showPage('home')">Menu</button>
+    </div>
+</header>
+
 <div class="container">
 
-<h1>SEPTIC SYSTEM ESTIMATOR</h1>
-
-<div class="section">
-    <div class="section-title">Job Info</div>
-    <input id="customerName" placeholder="Customer Name">
-    <input id="jobLocation" placeholder="Job Location">
+<!-- HOME PAGE -->
+<div id="home">
+    <div class="section">
+        <div class="section-title">Welcome</div>
+        <p>
+            Select a service below to generate a fast, professional estimate.
+        </p>
+        <button class="btn-blue" onclick="showPage('conventional')">
+            Conventional Septic System
+        </button>
+        <button class="btn-blue" onclick="showPage('chamber')">
+            Chamber Septic System
+        </button>
+        <button class="btn-yellow" disabled>
+            Dirt Work (Coming Soon)
+        </button>
+        <button class="btn-yellow" disabled>
+            Building Pads (Coming Soon)
+        </button>
+        <button class="btn-yellow" disabled>
+            Land Clearing (Coming Soon)
+        </button>
+    </div>
 </div>
 
-<div class="section">
-    <div class="section-title">Presets</div>
-    <button class="btn-blue" onclick="presetStandard()">Standard Job</button>
-    <button class="btn-blue" onclick="presetHeavy()">Heavy Site Work</button>
+<!-- ESTIMATOR PAGE -->
+<div id="estimator" class="hidden">
+
+    <div class="section">
+        <div class="section-title" id="systemTitle"></div>
+        <input id="customerName" placeholder="Customer Name">
+        <input id="jobLocation" placeholder="Job Location">
+    </div>
+
+    <div class="section">
+        <div class="section-title">System Details</div>
+        <input id="tankCost" type="number" placeholder="Tank Cost ($)">
+        <input id="fieldLength" type="number" placeholder="Field Line Length (ft)">
+        <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
+    </div>
+
+    <div class="section">
+        <div class="section-title">Rock (Hauled In)</div>
+        <input id="rockTons" type="number" placeholder="Rock Tons">
+        <input id="rockCost" type="number" value="17" placeholder="Cost per Ton ($)">
+    </div>
+
+    <div class="section">
+        <div class="section-title">Hauling</div>
+        <input id="haulDistance" type="number" placeholder="Miles One Way">
+        <input id="haulRate" type="number" value="35" placeholder="Cents per mile">
+    </div>
+
+    <div class="section">
+        <div class="section-title">Tree Clearing (if needed)</div>
+        <input id="treeCount" type="number" placeholder="Tree Count">
+        <select id="treeSize">
+            <option value="0">Tree Size</option>
+            <option value="500">Small</option>
+            <option value="1000">Medium</option>
+            <option value="1500">Large</option>
+        </select>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Labor / Site Work</div>
+        <input id="laborBase" type="number" placeholder="Total Labor Cost ($)">
+        <input id="markupPercent" type="number" placeholder="Markup %">
+    </div>
+
+    <button class="btn-yellow" onclick="calculateTotal()">CALCULATE TOTAL</button>
+    <button class="btn-green" onclick="generateCustomerQuote()">GENERATE CUSTOMER QUOTE</button>
+
+    <div class="total" id="totalOutput">$0.00</div>
 </div>
-
-<div class="section">
-    <div class="section-title">System Details</div>
-    <input id="tankCost" type="number" placeholder="Tank Cost ($)">
-    <input id="fieldLength" type="number" placeholder="Field Line Length (ft)">
-    <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
-</div>
-
-<div class="section">
-    <div class="section-title">Rock (Hauled In)</div>
-    <input id="rockTons" type="number" placeholder="Rock Tons">
-    <input id="rockCost" type="number" value="17" placeholder="Cost per Ton ($)">
-</div>
-
-<div class="section">
-    <div class="section-title">Hauling</div>
-    <input id="haulDistance" type="number" placeholder="Miles One Way">
-    <input id="haulRate" type="number" value="35" placeholder="Haul Cost (cents per mile)">
-</div>
-
-<div class="section">
-    <div class="section-title">Tree Clearing (if needed)</div>
-    <input id="treeCount" type="number" placeholder="Tree Count">
-    <select id="treeSize">
-        <option value="0">Select Tree Size</option>
-        <option value="500">Small</option>
-        <option value="1000">Medium</option>
-        <option value="1500">Large</option>
-    </select>
-</div>
-
-<div class="section">
-    <div class="section-title">Labor / Site Work / Mobilization</div>
-    <input id="laborBase" type="number" placeholder="Total Labor Cost ($)">
-    <input id="markupPercent" type="number" placeholder="Markup % (20–25)">
-</div>
-
-<button class="btn-yellow" onclick="calculateTotal()">CALCULATE TOTAL</button>
-<button class="btn-green" onclick="generateCustomerQuote()">GENERATE CUSTOMER QUOTE</button>
-
-<div class="total" id="totalOutput">$0.00</div>
 
 </div>
 
 <script>
+let systemType = "conventional";
+
+function showPage(page) {
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("estimator").classList.add("hidden");
+
+    if (page === "home") {
+        document.getElementById("home").classList.remove("hidden");
+    } else {
+        systemType = page;
+        document.getElementById("estimator").classList.remove("hidden");
+        setupSystem();
+    }
+}
+
+function setupSystem() {
+    if (systemType === "conventional") {
+        document.getElementById("systemTitle").innerText = "Conventional Septic System";
+        document.getElementById("laborBase").value = 22000;
+        document.getElementById("markupPercent").value = 22;
+    } else {
+        document.getElementById("systemTitle").innerText = "Chamber Septic System";
+        document.getElementById("laborBase").value = 19000;
+        document.getElementById("markupPercent").value = 22;
+    }
+}
+
 function getVal(id) {
     return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function presetStandard() {
-    document.getElementById("laborBase").value = 20000;
-    document.getElementById("markupPercent").value = 22;
-}
-
-function presetHeavy() {
-    document.getElementById("laborBase").value = 27500;
-    document.getElementById("markupPercent").value = 25;
-}
-
 function calculateTotal() {
-    const tank = getVal("tankCost");
-    const field = getVal("fieldLength");
-    const pipe = getVal("pipeCost");
+    const total =
+        getVal("tankCost") +
+        getVal("fieldLength") * getVal("pipeCost") +
+        getVal("rockTons") * getVal("rockCost") +
+        (getVal("haulDistance") * 2) * (getVal("haulRate") / 100) +
+        getVal("treeCount") * getVal("treeSize") +
+        getVal("laborBase");
 
-    const rockTons = getVal("rockTons");
-    const rockCost = getVal("rockCost");
-
-    const haulMiles = getVal("haulDistance");
-    const haulRate = getVal("haulRate");
-
-    const trees = getVal("treeCount");
-    const treeSize = getVal("treeSize");
-
-    const labor = getVal("laborBase");
-    const markup = getVal("markupPercent");
-
-    const pipeTotal = field * pipe;
-    const rockTotal = rockTons * rockCost;
-    const haulTotal = (haulMiles * 2) * (haulRate / 100);
-    const treeTotal = trees * treeSize;
-
-    const subTotal = tank + pipeTotal + rockTotal + haulTotal + treeTotal + labor;
-    const markupAmount = subTotal * (markup / 100);
-    const finalTotal = subTotal + markupAmount;
-
-    document.getElementById("totalOutput").innerText = "$" + finalTotal.toFixed(2);
+    const markup = total * (getVal("markupPercent") / 100);
+    document.getElementById("totalOutput").innerText =
+        "$" + (total + markup).toFixed(2);
 }
 
 function generateCustomerQuote() {
     calculateTotal();
-
-    const customer = document.getElementById("customerName").value || "Customer";
-    const location = document.getElementById("jobLocation").value || "Job Site";
-    const total = parseFloat(document.getElementById("totalOutput").innerText.replace("$",""));
-
-    const deposit = (total * 0.10).toFixed(2);
-    const paymentTerms = total > 15000
-        ? "Progress payments required for projects over $15,000."
-        : "Payment due upon completion.";
-
-    const win = window.open('', '_blank');
-    win.document.write(`
-        <html>
-        <body style="font-family:Arial;padding:40px">
-        <h1 style="text-align:center">Crestview Construction LLC</h1>
-        <p><strong>Customer:</strong> ${customer}<br>
-        <strong>Location:</strong> ${location}</p>
-
-        <h2>Total Project Price: $${total.toFixed(2)}</h2>
-        <p><strong>Deposit to Schedule:</strong> $${deposit}</p>
-        <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
-
-        <br><br>
-        <p>Customer Signature _________________________ Date __________</p>
-        </body>
-        </html>
-    `);
-    win.document.close();
-    win.print();
+    const total = document.getElementById("totalOutput").innerText;
+    alert("Customer Quote Total: " + total);
 }
 </script>
 
