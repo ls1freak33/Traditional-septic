@@ -30,7 +30,7 @@ header h1 {
 .menu-btn {
     background: #facc15;
     color: #000;
-    padding: 10px 16px;
+    padding: 10px 18px;
     border-radius: 8px;
     border: none;
     font-weight: bold;
@@ -45,15 +45,15 @@ header h1 {
 .section {
     border: 1px solid #facc15;
     border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 16px;
+    padding: 14px;
+    margin-bottom: 18px;
     background: #0b0b0b;
 }
 
 .section-title {
     color: #facc15;
     font-size: 18px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-weight: bold;
 }
 
@@ -85,7 +85,7 @@ button {
     text-align: center;
     font-size: 26px;
     color: #facc15;
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 .hidden { display: none; }
@@ -104,111 +104,59 @@ button {
 <!-- MENU -->
 <div id="menu">
     <div class="section">
-        <div class="section-title">Select Estimate</div>
-        <button class="btn-blue" onclick="showPage('septicConventional')">Conventional Septic</button>
-        <button class="btn-blue" onclick="showPage('septicChamber')">Chamber Septic</button>
-        <button class="btn-blue" onclick="showPage('padWork')">Building Pad</button>
+        <div class="section-title">Select Estimator</div>
+        <button class="btn-blue" onclick="showPage('conventional')">Conventional Septic</button>
+        <button class="btn-blue" onclick="showPage('chamber')">Chamber Septic</button>
     </div>
 </div>
 
-<!-- CONVENTIONAL SEPTIC -->
-<div id="septicConventional" class="hidden">
+<!-- CONVENTIONAL -->
+<div id="conventional" class="hidden">
     <div class="section">
-        <div class="section-title">Job Info</div>
-        <input id="custName" placeholder="Customer Name">
-        <input id="jobLoc" placeholder="Job Location">
-    </div>
-
-    <div class="section">
-        <div class="section-title">Materials</div>
+        <div class="section-title">Conventional Septic</div>
         <input id="tank" type="number" placeholder="Tank Cost ($)">
-        <input id="field" type="number" placeholder="Field Line Length (ft)">
+        <input id="field" type="number" placeholder="Field Length (ft)">
         <input id="pipe" type="number" placeholder="Pipe Cost per ft ($)">
-        <input id="rockTons" type="number" placeholder="Rock Tons">
-        <input id="rockCost" type="number" value="17" placeholder="Rock Cost per Ton">
-    </div>
-
-    <div class="section">
-        <div class="section-title">Labor & Markup</div>
         <input id="labor" type="number" value="20000" placeholder="Labor Cost">
         <input id="markup" type="number" value="20" placeholder="Markup %">
+        <button class="btn-yellow" onclick="calc()">Calculate</button>
+        <div class="total" id="total">$0.00</div>
     </div>
-
-    <button class="btn-yellow" onclick="calcSeptic()">Calculate</button>
-    <button class="btn-green" onclick="quoteSeptic()">Generate Quote</button>
-    <div class="total" id="septicTotal">$0.00</div>
 </div>
 
-<!-- CHAMBER SEPTIC -->
-<div id="septicChamber" class="hidden">
+<!-- CHAMBER -->
+<div id="chamber" class="hidden">
     <div class="section">
-        <div class="section-title">Chamber Septic System</div>
-        <p>Uses same calculator with reduced labor.</p>
+        <div class="section-title">Chamber Septic</div>
+        <p>Reduced labor applied automatically.</p>
         <button class="btn-yellow" onclick="setChamber()">Start Chamber Estimate</button>
     </div>
-</div>
-
-<!-- PAD WORK -->
-<div id="padWork" class="hidden">
-    <div class="section">
-        <div class="section-title">Building Pad</div>
-        <input id="padLength" type="number" placeholder="Pad Length (ft)">
-        <input id="padWidth" type="number" placeholder="Pad Width (ft)">
-        <input id="padDepth" type="number" placeholder="Average Depth (ft)">
-        <input id="padRate" type="number" value="12" placeholder="Cost per Cubic Yard">
-        <input id="padLabor" type="number" value="5000" placeholder="Labor Cost">
-    </div>
-
-    <button class="btn-yellow" onclick="calcPad()">Calculate Pad</button>
-    <div class="total" id="padTotal">$0.00</div>
 </div>
 
 </div>
 
 <script>
 function showPage(id) {
-    document.querySelectorAll('#menu, #septicConventional, #septicChamber, #padWork')
-        .forEach(p => p.classList.add('hidden'));
+    document.getElementById('menu').classList.add('hidden');
+    document.getElementById('conventional').classList.add('hidden');
+    document.getElementById('chamber').classList.add('hidden');
     document.getElementById(id).classList.remove('hidden');
 }
 
-function v(id){ return parseFloat(document.getElementById(id)?.value)||0; }
-
-function calcSeptic(){
-    const material =
-        v('tank') +
-        (v('field') * v('pipe')) +
-        (v('rockTons') * v('rockCost'));
-
-    const subtotal = material + v('labor');
-    const total = subtotal + (subtotal * v('markup')/100);
-    document.getElementById('septicTotal').innerText = `$${total.toFixed(2)}`;
+function val(id) {
+    return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function quoteSeptic(){
-    calcSeptic();
-    const total = parseFloat(document.getElementById('septicTotal').innerText.replace('$',''));
-    const deposit = total > 10000 ? (total * 0.15).toFixed(2) : '0.00';
-
-    const w = window.open('');
-    w.document.write(`
-        <h2>Customer Quote</h2>
-        <p>Total: $${total.toFixed(2)}</p>
-        <p>Deposit: $${deposit}</p>
-        <p>${total > 10000 ? 'Progress payments required' : 'Payment due upon completion'}</p>
-        <script>window.print()</script>
-    `);
+function calc() {
+    const material = val('tank') + (val('field') * val('pipe'));
+    const subtotal = material + val('labor');
+    const total = subtotal + (subtotal * val('markup') / 100);
+    document.getElementById('total').innerText = '$' + total.toFixed(2);
 }
 
-function setChamber(){
+function setChamber() {
     document.getElementById('labor').value = 17000;
-    showPage('septicConventional');
-}
-
-function calcPad(){
-    const cubicYards = (v('padLength') * v('padWidth') * v('padDepth')) / 27;
-    const total = (cubicYards * v('padRate')) + v('padLabor');
-    document.getElementById('padTotal').innerText = `$${total.toFixed(2)}`;
+    showPage('conventional');
 }
 </script>
 
