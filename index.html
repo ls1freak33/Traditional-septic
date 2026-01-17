@@ -15,15 +15,15 @@ body {
 
 header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 15px;
     border-bottom: 2px solid #facc15;
 }
 
 header h1 {
     color: #facc15;
-    font-size: 24px;
+    font-size: 22px;
     margin: 0;
 }
 
@@ -57,7 +57,7 @@ header h1 {
     font-weight: bold;
 }
 
-input, select {
+input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -70,7 +70,7 @@ input, select {
 button {
     width: 100%;
     padding: 14px;
-    margin-top: 10px;
+    margin-top: 8px;
     border: none;
     border-radius: 8px;
     font-size: 16px;
@@ -78,14 +78,14 @@ button {
 }
 
 .btn-yellow { background: #facc15; color: #000; }
-.btn-green { background: #22c55e; color: #000; }
 .btn-blue { background: #2563eb; color: #fff; }
+.btn-green { background: #22c55e; color: #000; }
 
 .total {
     text-align: center;
-    font-size: 28px;
+    font-size: 26px;
     color: #facc15;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .hidden { display: none; }
@@ -104,14 +104,15 @@ button {
 <!-- MENU -->
 <div id="menu">
     <div class="section">
-        <div class="section-title">Select Estimator</div>
-        <button class="btn-blue" onclick="showPage('conventional')">Conventional Septic</button>
-        <button class="btn-blue" onclick="showPage('chamber')">Chamber Septic</button>
+        <div class="section-title">Select Estimate</div>
+        <button class="btn-blue" onclick="showPage('septicConventional')">Conventional Septic</button>
+        <button class="btn-blue" onclick="showPage('septicChamber')">Chamber Septic</button>
+        <button class="btn-blue" onclick="showPage('padWork')">Building Pad</button>
     </div>
 </div>
 
 <!-- CONVENTIONAL SEPTIC -->
-<div id="conventional" class="hidden">
+<div id="septicConventional" class="hidden">
     <div class="section">
         <div class="section-title">Job Info</div>
         <input id="custName" placeholder="Customer Name">
@@ -119,76 +120,95 @@ button {
     </div>
 
     <div class="section">
-        <div class="section-title">System Details</div>
+        <div class="section-title">Materials</div>
         <input id="tank" type="number" placeholder="Tank Cost ($)">
         <input id="field" type="number" placeholder="Field Line Length (ft)">
         <input id="pipe" type="number" placeholder="Pipe Cost per ft ($)">
-    </div>
-
-    <div class="section">
-        <div class="section-title">Rock</div>
         <input id="rockTons" type="number" placeholder="Rock Tons">
-        <input id="rockCost" type="number" value="17">
+        <input id="rockCost" type="number" value="17" placeholder="Rock Cost per Ton">
     </div>
 
     <div class="section">
-        <div class="section-title">Labor</div>
-        <input id="labor" type="number" value="20000">
-        <input id="markup" type="number" value="20">
+        <div class="section-title">Labor & Markup</div>
+        <input id="labor" type="number" value="20000" placeholder="Labor Cost">
+        <input id="markup" type="number" value="20" placeholder="Markup %">
     </div>
 
-    <button class="btn-yellow" onclick="calculate()">Calculate Total</button>
-    <button class="btn-green" onclick="generateQuote()">Generate Quote</button>
-    <div class="total" id="total">$0.00</div>
+    <button class="btn-yellow" onclick="calcSeptic()">Calculate</button>
+    <button class="btn-green" onclick="quoteSeptic()">Generate Quote</button>
+    <div class="total" id="septicTotal">$0.00</div>
 </div>
 
 <!-- CHAMBER SEPTIC -->
-<div id="chamber" class="hidden">
+<div id="septicChamber" class="hidden">
     <div class="section">
-        <div class="section-title">Chamber System</div>
-        <p>Labor preset adjusted for chamber install.</p>
-        <button class="btn-blue" onclick="document.getElementById('labor').value=17000;showPage('conventional')">
-            Start Chamber Estimate
-        </button>
+        <div class="section-title">Chamber Septic System</div>
+        <p>Uses same calculator with reduced labor.</p>
+        <button class="btn-yellow" onclick="setChamber()">Start Chamber Estimate</button>
     </div>
+</div>
+
+<!-- PAD WORK -->
+<div id="padWork" class="hidden">
+    <div class="section">
+        <div class="section-title">Building Pad</div>
+        <input id="padLength" type="number" placeholder="Pad Length (ft)">
+        <input id="padWidth" type="number" placeholder="Pad Width (ft)">
+        <input id="padDepth" type="number" placeholder="Average Depth (ft)">
+        <input id="padRate" type="number" value="12" placeholder="Cost per Cubic Yard">
+        <input id="padLabor" type="number" value="5000" placeholder="Labor Cost">
+    </div>
+
+    <button class="btn-yellow" onclick="calcPad()">Calculate Pad</button>
+    <div class="total" id="padTotal">$0.00</div>
 </div>
 
 </div>
 
 <script>
 function showPage(id) {
-    document.querySelectorAll('#menu, #conventional, #chamber')
+    document.querySelectorAll('#menu, #septicConventional, #septicChamber, #padWork')
         .forEach(p => p.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
 }
 
-function val(id){ return parseFloat(document.getElementById(id).value)||0; }
+function v(id){ return parseFloat(document.getElementById(id)?.value)||0; }
 
-function calculate(){
-    const total =
-        val('tank') +
-        (val('field') * val('pipe')) +
-        (val('rockTons') * val('rockCost')) +
-        val('labor');
+function calcSeptic(){
+    const material =
+        v('tank') +
+        (v('field') * v('pipe')) +
+        (v('rockTons') * v('rockCost'));
 
-    const markup = total * (val('markup')/100);
-    document.getElementById('total').innerText =
-        '$' + (total + markup).toFixed(2);
+    const subtotal = material + v('labor');
+    const total = subtotal + (subtotal * v('markup')/100);
+    document.getElementById('septicTotal').innerText = `$${total.toFixed(2)}`;
 }
 
-function generateQuote(){
-    calculate();
-    const total = parseFloat(document.getElementById('total').innerText.replace('$',''));
-    const deposit = total > 10000 ? (total*0.15).toFixed(2) : '0.00';
+function quoteSeptic(){
+    calcSeptic();
+    const total = parseFloat(document.getElementById('septicTotal').innerText.replace('$',''));
+    const deposit = total > 10000 ? (total * 0.15).toFixed(2) : '0.00';
 
-    const win = window.open('');
-    win.document.write(`
-        <h1>Crestview Construction LLC</h1>
-        <p>Total Price: $${total.toFixed(2)}</p>
+    const w = window.open('');
+    w.document.write(`
+        <h2>Customer Quote</h2>
+        <p>Total: $${total.toFixed(2)}</p>
         <p>Deposit: $${deposit}</p>
-        <p>${total>10000?'Progress payments required':'Payment due at completion'}</p>
+        <p>${total > 10000 ? 'Progress payments required' : 'Payment due upon completion'}</p>
         <script>window.print()</script>
     `);
+}
+
+function setChamber(){
+    document.getElementById('labor').value = 17000;
+    showPage('septicConventional');
+}
+
+function calcPad(){
+    const cubicYards = (v('padLength') * v('padWidth') * v('padDepth')) / 27;
+    const total = (cubicYards * v('padRate')) + v('padLabor');
+    document.getElementById('padTotal').innerText = `$${total.toFixed(2)}`;
 }
 </script>
 
