@@ -36,6 +36,7 @@ button {
 .btn-yellow{background:#facc15;color:#000;}
 .btn-green{background:#22c55e;color:#000;}
 .btn-blue{background:#2563eb;color:#fff;}
+.btn-red{background:#dc2626;color:#fff;}
 
 .container {
     max-width:700px;
@@ -69,6 +70,12 @@ input, select {
     margin-top:10px;
 }
 .hidden {display:none;}
+.job-card {
+    border:1px solid #555;
+    padding:10px;
+    margin-bottom:10px;
+    border-radius:8px;
+}
 </style>
 </head>
 
@@ -87,6 +94,7 @@ input, select {
         <div class="section-title">Select System</div>
         <button class="btn-blue" onclick="startSystem('conventional')">Conventional Septic</button>
         <button class="btn-blue" onclick="startSystem('chamber')">Chamber Septic</button>
+        <button class="btn-green" onclick="showJobs()">Saved Jobs</button>
     </div>
 </div>
 
@@ -109,14 +117,14 @@ input, select {
 <div class="section">
     <div class="section-title">Rock / Hauling</div>
     <input id="rockTons" type="number" placeholder="Rock Tons">
-    <input id="rockCost" type="number" value="17" placeholder="Cost per Ton">
+    <input id="rockCost" type="number" value="17">
     <input id="haulDistance" type="number" placeholder="Miles One Way">
-    <input id="haulRate" type="number" value="35" placeholder="Cents per mile">
+    <input id="haulRate" type="number" value="35">
 </div>
 
 <div class="section">
     <div class="section-title">Tree Clearing</div>
-    <input id="treeCount" type="number" placeholder="Tree Count">
+    <input id="treeCount" type="number">
     <select id="treeSize">
         <option value="0">Tree Size</option>
         <option value="500">Small</option>
@@ -135,33 +143,47 @@ input, select {
 
 <div class="section">
     <div class="section-title">Labor / Site Work</div>
-    <input id="laborBase" type="number" placeholder="Base Labor Cost">
-    <input id="markupPercent" type="number" value="22" placeholder="Markup %">
+    <input id="laborBase" type="number">
+    <input id="markupPercent" type="number" value="22">
 </div>
 
-<button class="btn-yellow" onclick="calculate()">Calculate Total</button>
-<button class="btn-green" onclick="generateQuote()">Generate Customer Quote</button>
+<button class="btn-yellow" onclick="calculate()">Calculate</button>
+<button class="btn-green" onclick="saveJob()">Save Job</button>
+<button class="btn-blue" onclick="generateQuote()">Generate Quote</button>
 
 <div class="total" id="totalOutput">$0.00</div>
 
 </div>
+
+<!-- SAVED JOBS -->
+<div id="jobs" class="hidden">
+    <div class="section">
+        <div class="section-title">Saved Jobs</div>
+        <div id="jobList"></div>
+    </div>
+</div>
+
 </div>
 
 <script>
 function $(id){return document.getElementById(id);}
 function val(id){return parseFloat($(id).value)||0;}
 
+let systemType = "";
+
 function showHome(){
-    $("home").classList.remove("hidden");
-    $("estimator").classList.add("hidden");
+    home.classList.remove("hidden");
+    estimator.classList.add("hidden");
+    jobs.classList.add("hidden");
 }
 
 function startSystem(type){
-    $("home").classList.add("hidden");
-    $("estimator").classList.remove("hidden");
-    $("systemTitle").innerText =
-        type === "conventional" ? "Conventional Septic System" : "Chamber Septic System";
-    $("laborBase").value = type === "conventional" ? 22000 : 19000;
+    systemType = type;
+    home.classList.add("hidden");
+    estimator.classList.remove("hidden");
+    jobs.classList.add("hidden");
+    systemTitle.innerText = type === "conventional" ? "Conventional Septic System" : "Chamber Septic System";
+    laborBase.value = type === "conventional" ? 22000 : 19000;
 }
 
 function calculate(){
@@ -176,33 +198,64 @@ function calculate(){
     if(val("crewSize") === 2) labor *= 1.3;
 
     let subtotal = materials + labor;
-    let total = subtotal + (subtotal * val("markupPercent")/100);
+    let total = subtotal + subtotal * val("markupPercent")/100;
 
-    $("totalOutput").innerText = "$" + total.toFixed(2);
+    totalOutput.innerText = "$" + total.toFixed(2);
     return {materials, labor, total};
+}
+
+function saveJob(){
+    const r = calculate();
+    const jobs = JSON.parse(localStorage.getItem("jobs")||"[]");
+    jobs.push({
+        customer: customerName.value,
+        location: jobLocation.value,
+        system: systemType,
+        materials: r.materials,
+        labor: r.labor,
+        total: r.total,
+        date: new Date().toLocaleDateString()
+    });
+    localStorage.setItem("jobs", JSON.stringify(jobs));
+    alert("Job saved offline");
+}
+
+function showJobs(){
+    home.classList.add("hidden");
+    estimator.classList.add("hidden");
+    jobs.classList.remove("hidden");
+
+    jobList.innerHTML = "";
+    const data = JSON.parse(localStorage.getItem("jobs")||"[]");
+
+    data.forEach((j,i)=>{
+        jobList.innerHTML += `
+        <div class="job-card">
+            <b>${j.customer || "No Name"}</b><br>
+            ${j.system}<br>
+            $${j.total.toFixed(2)}<br>
+            <button class="btn-red" onclick="deleteJob(${i})">Delete</button>
+        </div>`;
+    });
+}
+
+function deleteJob(i){
+    const data = JSON.parse(localStorage.getItem("jobs")||"[]");
+    data.splice(i,1);
+    localStorage.setItem("jobs", JSON.stringify(data));
+    showJobs();
 }
 
 function generateQuote(){
     const r = calculate();
-    const total = r.total;
-    const deposit = total > 10000 ? (total * 0.15).toFixed(2) : "0.00";
-    const terms = total > 10000 ? "15% deposit required to schedule." : "Payment due upon completion.";
-
-    localStorage.setItem("lastJob", JSON.stringify({
-        customer: $("customerName").value,
-        location: $("jobLocation").value,
-        total: total,
-        date: new Date().toLocaleDateString()
-    }));
-
+    const deposit = r.total > 10000 ? (r.total*0.15).toFixed(2) : "0.00";
     const w = window.open("");
     w.document.write(`
         <h2>Crestview Construction LLC</h2>
-        <p><b>Materials:</b> $${r.materials.toFixed(2)}</p>
-        <p><b>Labor / Site Work:</b> $${r.labor.toFixed(2)}</p>
-        <h3>Total: $${total.toFixed(2)}</h3>
-        <p><b>Deposit:</b> $${deposit}</p>
-        <p>${terms}</p>
+        <p>Materials: $${r.materials.toFixed(2)}</p>
+        <p>Labor / Site Work: $${r.labor.toFixed(2)}</p>
+        <h3>Total: $${r.total.toFixed(2)}</h3>
+        <p>Deposit: $${deposit}</p>
     `);
     w.print();
 }
