@@ -52,7 +52,7 @@ header h1 {
 
 .section-title {
     color: #facc15;
-    font-size: 18px;
+    font-size: 20px;
     margin-bottom: 12px;
     font-weight: bold;
 }
@@ -79,7 +79,6 @@ button {
 
 .btn-yellow { background: #facc15; color: #000; }
 .btn-blue { background: #2563eb; color: #fff; }
-.btn-green { background: #22c55e; color: #000; }
 
 .total {
     text-align: center;
@@ -105,42 +104,32 @@ button {
 <div id="menu">
     <div class="section">
         <div class="section-title">Select Estimator</div>
-        <button class="btn-blue" onclick="showPage('conventional')">Conventional Septic</button>
-        <button class="btn-blue" onclick="showPage('chamber')">Chamber Septic</button>
+        <button class="btn-blue" onclick="showPage('septic')">Septic Estimator</button>
         <button class="btn-blue" onclick="showPage('pad')">Building Pad</button>
     </div>
 </div>
 
-<!-- CONVENTIONAL SEPTIC -->
-<div id="conventional" class="hidden">
+<!-- SEPTIC PAGE (RESTORED LAYOUT) -->
+<div id="septic" class="hidden">
     <div class="section">
-        <div class="section-title">Conventional Septic</div>
+        <div class="section-title">Septic System</div>
 
-        <input id="tank" type="number" placeholder="Tank Cost ($)">
-        <input id="field" type="number" placeholder="Field Line Length (ft)">
-        <input id="pipe" type="number" placeholder="Pipe Cost per ft ($)">
+        <input id="tankCost" type="number" placeholder="Tank Cost ($)">
+        <input id="fieldLength" type="number" placeholder="Field Line Length (ft)">
+        <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
 
         <input id="rockTons" type="number" placeholder="Gravel / Rock Tons">
         <input id="rockCost" type="number" value="17" placeholder="Cost per Ton ($)">
 
-        <input id="labor" type="number" value="20000" placeholder="Labor Cost ($)">
+        <input id="laborCost" type="number" placeholder="Labor / Site Work ($)">
         <input id="markup" type="number" value="20" placeholder="Markup %">
 
-        <button class="btn-yellow" onclick="calcSeptic()">Calculate Total</button>
+        <button class="btn-yellow" onclick="calculateSeptic()">Calculate Total</button>
         <div class="total" id="septicTotal">$0.00</div>
     </div>
 </div>
 
-<!-- CHAMBER SEPTIC -->
-<div id="chamber" class="hidden">
-    <div class="section">
-        <div class="section-title">Chamber Septic</div>
-        <p>Uses same layout as conventional but reduced labor.</p>
-        <button class="btn-yellow" onclick="startChamber()">Start Chamber Estimate</button>
-    </div>
-</div>
-
-<!-- PAD WORK -->
+<!-- PAD PAGE -->
 <div id="pad" class="hidden">
     <div class="section">
         <div class="section-title">Building Pad</div>
@@ -151,7 +140,7 @@ button {
         <input id="padCost" type="number" placeholder="Cost per Cubic Yard ($)">
         <input id="padLabor" type="number" placeholder="Labor Cost ($)">
 
-        <button class="btn-yellow" onclick="calcPad()">Calculate Pad</button>
+        <button class="btn-yellow" onclick="calculatePad()">Calculate Pad</button>
         <div class="total" id="padTotal">$0.00</div>
     </div>
 </div>
@@ -159,35 +148,29 @@ button {
 </div>
 
 <script>
-function showPage(id) {
+function showPage(page) {
     document.getElementById('menu').classList.add('hidden');
-    document.getElementById('conventional').classList.add('hidden');
-    document.getElementById('chamber').classList.add('hidden');
+    document.getElementById('septic').classList.add('hidden');
     document.getElementById('pad').classList.add('hidden');
-    document.getElementById(id).classList.remove('hidden');
+    document.getElementById(page).classList.remove('hidden');
 }
 
-function val(id) {
+function num(id) {
     return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function calcSeptic() {
-    const pipeTotal = val('field') * val('pipe');
-    const rockTotal = val('rockTons') * val('rockCost');
-    const subtotal = val('tank') + pipeTotal + rockTotal + val('labor');
-    const total = subtotal + (subtotal * val('markup') / 100);
+function calculateSeptic() {
+    const pipeTotal = num('fieldLength') * num('pipeCost');
+    const rockTotal = num('rockTons') * num('rockCost');
+    const subtotal = num('tankCost') + pipeTotal + rockTotal + num('laborCost');
+    const total = subtotal + (subtotal * num('markup') / 100);
     document.getElementById('septicTotal').innerText = '$' + total.toFixed(2);
 }
 
-function startChamber() {
-    document.getElementById('labor').value = 17000;
-    showPage('conventional');
-}
-
-function calcPad() {
-    const cubicFeet = val('padLength') * val('padWidth') * val('padDepth');
+function calculatePad() {
+    const cubicFeet = num('padLength') * num('padWidth') * num('padDepth');
     const cubicYards = cubicFeet / 27;
-    const total = (cubicYards * val('padCost')) + val('padLabor');
+    const total = (cubicYards * num('padCost')) + num('padLabor');
     document.getElementById('padTotal').innerText = '$' + total.toFixed(2);
 }
 </script>
