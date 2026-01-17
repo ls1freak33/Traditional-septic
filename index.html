@@ -13,6 +13,23 @@ body {
     font-family: Arial, sans-serif;
 }
 
+.nav {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    justify-content: center;
+}
+
+.nav button {
+    background: #facc15;
+    color: #000;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .container {
     max-width: 650px;
     margin: auto;
@@ -25,8 +42,7 @@ body {
 h1 {
     text-align: center;
     color: #facc15;
-    font-size: 32px;
-    margin-bottom: 20px;
+    font-size: 30px;
 }
 
 .section {
@@ -52,148 +68,117 @@ input, select {
     border: 1px solid #facc15;
     border-radius: 6px;
     color: #fff;
-    font-size: 15px;
 }
 
-button {
+button.calc {
     width: 100%;
     padding: 14px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    background: #22c55e;
+    color: #000;
     font-weight: bold;
+    border-radius: 8px;
+    border: none;
     cursor: pointer;
-    margin-top: 10px;
 }
-
-.btn-yellow { background: #facc15; color: #000; }
-.btn-green { background: #22c55e; color: #000; }
 
 .total {
     text-align: center;
-    font-size: 28px;
-    font-weight: bold;
+    font-size: 26px;
     color: #facc15;
-    margin-top: 15px;
+    font-weight: bold;
+    margin-top: 10px;
 }
+
+.page { display: none; }
+.page.active { display: block; }
 </style>
 </head>
 
 <body>
 
+<div class="nav">
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="setSystem('conventional')">Conventional Septic</button>
+    <button onclick="setSystem('chamber')">Chamber Septic</button>
+    <button onclick="showPage('pad')">Pad Work</button>
+</div>
+
 <div class="container">
 
-<h1>SEPTIC SYSTEM ESTIMATOR</h1>
-
-<div class="section">
-    <div class="section-title">Job Info</div>
-    <input id="customerName" placeholder="Customer Name">
-    <input id="jobLocation" placeholder="Job Location">
+<!-- HOME -->
+<div id="home" class="page active">
+    <h1>Construction Estimator</h1>
+    <p style="text-align:center">
+        Select a service above to begin an estimate.
+    </p>
 </div>
 
-<div class="section">
-    <div class="section-title">System Type</div>
-    <select id="systemType">
-        <option value="conventional">Conventional Septic</option>
-        <option value="chamber">Chamber Septic</option>
-    </select>
-</div>
+<!-- SEPTIC -->
+<div id="septic" class="page">
+
+<h1 id="septicTitle">Septic Estimator</h1>
 
 <div class="section">
     <div class="section-title">System Details</div>
     <input id="tankCost" type="number" placeholder="Tank Cost ($)">
-    <input id="fieldLength" type="number" placeholder="Field Line Length (ft)">
+    <input id="fieldLength" type="number" placeholder="Field Length (ft)">
     <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
 </div>
 
 <div class="section">
-    <div class="section-title">Rock (Hauled In)</div>
+    <div class="section-title">Gravel</div>
     <input id="rockTons" type="number" placeholder="Rock Tons">
-    <input id="rockCost" type="number" value="17" placeholder="Cost per Ton ($)">
+    <input id="rockCost" type="number" value="17" placeholder="Cost per Ton">
 </div>
 
 <div class="section">
-    <div class="section-title">Hauling</div>
-    <input id="haulDistance" type="number" placeholder="Miles One Way">
-    <input id="haulRate" type="number" placeholder="Haul Cost (cents per mile)">
-</div>
-
-<div class="section">
-    <div class="section-title">Tree Clearing (if needed)</div>
-    <input id="treeCount" type="number" placeholder="Tree Count">
-    <select id="treeSize">
-        <option value="0">Select Tree Size</option>
-        <option value="500">Small</option>
-        <option value="1000">Medium</option>
-        <option value="1500">Large</option>
-    </select>
-</div>
-
-<div class="section">
-    <div class="section-title">Labor / Site Work</div>
-    <input id="laborBase" type="number" placeholder="Base Labor Cost ($)">
+    <div class="section-title">Labor</div>
+    <input id="laborBase" type="number" placeholder="Labor Cost ($)">
     <input id="markupPercent" type="number" placeholder="Markup %">
 </div>
 
-<button class="btn-yellow" onclick="calculateTotal()">CALCULATE TOTAL</button>
-<button class="btn-green" onclick="generateQuote()">GENERATE CUSTOMER QUOTE</button>
+<button class="calc" onclick="calculate()">CALCULATE</button>
+<div class="total" id="total">$0.00</div>
 
-<div class="total" id="totalOutput">$0.00</div>
+</div>
+
+<!-- PAD WORK -->
+<div id="pad" class="page">
+    <h1>Pad Work</h1>
+    <p>Pad estimator coming next.</p>
+</div>
 
 </div>
 
 <script>
+let systemType = "conventional";
+
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function setSystem(type) {
+    systemType = type;
+    showPage('septic');
+    document.getElementById('septicTitle').innerText =
+        type === "chamber" ? "Chamber Septic Estimator" : "Conventional Septic Estimator";
+}
+
 function val(id) {
     return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function calculateTotal() {
+function calculate() {
+    let total =
+        val("tankCost") +
+        (val("fieldLength") * val("pipeCost")) +
+        (systemType === "chamber" ? 0 : val("rockTons") * val("rockCost")) +
+        (systemType === "chamber" ? val("laborBase") * 0.85 : val("laborBase"));
 
-    let tank = val("tankCost");
-    let field = val("fieldLength");
-    let pipe = val("pipeCost");
-    let rockTons = val("rockTons");
-    let rockCost = val("rockCost");
-    let haulMiles = val("haulDistance");
-    let haulRate = val("haulRate");
-    let trees = val("treeCount");
-    let treeSize = val("treeSize");
-    let labor = val("laborBase");
-    let markup = val("markupPercent");
+    total += total * (val("markupPercent") / 100);
 
-    let systemType = document.getElementById("systemType").value;
-
-    let pipeTotal = field * pipe;
-    let rockTotal = rockTons * rockCost;
-    let haulTotal = (haulMiles * 2) * (haulRate / 100);
-    let treeTotal = trees * treeSize;
-
-    // Chamber adjustments
-    if (systemType === "chamber") {
-        rockTotal = 0;
-        labor = labor * 0.85; // 15% labor reduction
-    }
-
-    let subtotal = tank + pipeTotal + rockTotal + haulTotal + treeTotal + labor;
-    let total = subtotal + (subtotal * (markup / 100));
-
-    document.getElementById("totalOutput").innerText = "$" + total.toFixed(2);
-}
-
-function generateQuote() {
-    calculateTotal();
-
-    let total = parseFloat(document.getElementById("totalOutput").innerText.replace("$",""));
-    let deposit = total >= 10000 ? total * 0.15 : 0;
-
-    let win = window.open("", "_blank");
-    win.document.write(`
-        <h1>Crestview Construction LLC</h1>
-        <p><strong>Total:</strong> $${total.toFixed(2)}</p>
-        <p><strong>Deposit:</strong> $${deposit.toFixed(2)}</p>
-        <p>${total >= 10000 ? "Progress payments apply." : "Payment due upon completion."}</p>
-        <script>window.print();</script>
-    `);
+    document.getElementById("total").innerText = "$" + total.toFixed(2);
 }
 </script>
 
