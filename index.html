@@ -107,29 +107,52 @@ button {
         <div class="section-title">Select Estimator</div>
         <button class="btn-blue" onclick="showPage('conventional')">Conventional Septic</button>
         <button class="btn-blue" onclick="showPage('chamber')">Chamber Septic</button>
+        <button class="btn-blue" onclick="showPage('pad')">Building Pad</button>
     </div>
 </div>
 
-<!-- CONVENTIONAL -->
+<!-- CONVENTIONAL SEPTIC -->
 <div id="conventional" class="hidden">
     <div class="section">
         <div class="section-title">Conventional Septic</div>
+
         <input id="tank" type="number" placeholder="Tank Cost ($)">
-        <input id="field" type="number" placeholder="Field Length (ft)">
+        <input id="field" type="number" placeholder="Field Line Length (ft)">
         <input id="pipe" type="number" placeholder="Pipe Cost per ft ($)">
-        <input id="labor" type="number" value="20000" placeholder="Labor Cost">
+
+        <input id="rockTons" type="number" placeholder="Gravel / Rock Tons">
+        <input id="rockCost" type="number" value="17" placeholder="Cost per Ton ($)">
+
+        <input id="labor" type="number" value="20000" placeholder="Labor Cost ($)">
         <input id="markup" type="number" value="20" placeholder="Markup %">
-        <button class="btn-yellow" onclick="calc()">Calculate</button>
-        <div class="total" id="total">$0.00</div>
+
+        <button class="btn-yellow" onclick="calcSeptic()">Calculate Total</button>
+        <div class="total" id="septicTotal">$0.00</div>
     </div>
 </div>
 
-<!-- CHAMBER -->
+<!-- CHAMBER SEPTIC -->
 <div id="chamber" class="hidden">
     <div class="section">
         <div class="section-title">Chamber Septic</div>
-        <p>Reduced labor applied automatically.</p>
-        <button class="btn-yellow" onclick="setChamber()">Start Chamber Estimate</button>
+        <p>Uses same layout as conventional but reduced labor.</p>
+        <button class="btn-yellow" onclick="startChamber()">Start Chamber Estimate</button>
+    </div>
+</div>
+
+<!-- PAD WORK -->
+<div id="pad" class="hidden">
+    <div class="section">
+        <div class="section-title">Building Pad</div>
+
+        <input id="padLength" type="number" placeholder="Pad Length (ft)">
+        <input id="padWidth" type="number" placeholder="Pad Width (ft)">
+        <input id="padDepth" type="number" placeholder="Fill Depth (ft)">
+        <input id="padCost" type="number" placeholder="Cost per Cubic Yard ($)">
+        <input id="padLabor" type="number" placeholder="Labor Cost ($)">
+
+        <button class="btn-yellow" onclick="calcPad()">Calculate Pad</button>
+        <div class="total" id="padTotal">$0.00</div>
     </div>
 </div>
 
@@ -140,6 +163,7 @@ function showPage(id) {
     document.getElementById('menu').classList.add('hidden');
     document.getElementById('conventional').classList.add('hidden');
     document.getElementById('chamber').classList.add('hidden');
+    document.getElementById('pad').classList.add('hidden');
     document.getElementById(id).classList.remove('hidden');
 }
 
@@ -147,16 +171,24 @@ function val(id) {
     return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function calc() {
-    const material = val('tank') + (val('field') * val('pipe'));
-    const subtotal = material + val('labor');
+function calcSeptic() {
+    const pipeTotal = val('field') * val('pipe');
+    const rockTotal = val('rockTons') * val('rockCost');
+    const subtotal = val('tank') + pipeTotal + rockTotal + val('labor');
     const total = subtotal + (subtotal * val('markup') / 100);
-    document.getElementById('total').innerText = '$' + total.toFixed(2);
+    document.getElementById('septicTotal').innerText = '$' + total.toFixed(2);
 }
 
-function setChamber() {
+function startChamber() {
     document.getElementById('labor').value = 17000;
     showPage('conventional');
+}
+
+function calcPad() {
+    const cubicFeet = val('padLength') * val('padWidth') * val('padDepth');
+    const cubicYards = cubicFeet / 27;
+    const total = (cubicYards * val('padCost')) + val('padLabor');
+    document.getElementById('padTotal').innerText = '$' + total.toFixed(2);
 }
 </script>
 
