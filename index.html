@@ -43,6 +43,15 @@ h1 {
     text-align: center;
     color: #facc15;
     font-size: 30px;
+    margin-bottom: 5px;
+}
+
+.company {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #3b82f6;
+    margin-bottom: 18px;
 }
 
 .section {
@@ -108,6 +117,7 @@ button.calc {
 <!-- HOME -->
 <div id="home" class="page active">
     <h1>Construction Estimator</h1>
+    <div class="company">Crest View Construction LLC</div>
     <p style="text-align:center">
         Select a service above to begin an estimate.
     </p>
@@ -115,36 +125,36 @@ button.calc {
 
 <!-- SEPTIC -->
 <div id="septic" class="page">
+    <h1 id="septicTitle">Septic Estimator</h1>
+    <div class="company">Crest View Construction LLC</div>
 
-<h1 id="septicTitle">Septic Estimator</h1>
+    <div class="section">
+        <div class="section-title">System Details</div>
+        <input id="tankCost" type="number" placeholder="Tank Cost ($)">
+        <input id="fieldLength" type="number" placeholder="Field Length (ft)">
+        <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
+    </div>
 
-<div class="section">
-    <div class="section-title">System Details</div>
-    <input id="tankCost" type="number" placeholder="Tank Cost ($)">
-    <input id="fieldLength" type="number" placeholder="Field Length (ft)">
-    <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
-</div>
+    <div class="section">
+        <div class="section-title">Gravel</div>
+        <input id="rockTons" type="number" placeholder="Rock Tons">
+        <input id="rockCost" type="number" value="17" placeholder="Cost per Ton">
+    </div>
 
-<div class="section">
-    <div class="section-title">Gravel</div>
-    <input id="rockTons" type="number" placeholder="Rock Tons">
-    <input id="rockCost" type="number" value="17" placeholder="Cost per Ton">
-</div>
+    <div class="section">
+        <div class="section-title">Labor</div>
+        <input id="laborBase" type="number" placeholder="Labor Cost ($)">
+        <input id="markupPercent" type="number" placeholder="Markup %">
+    </div>
 
-<div class="section">
-    <div class="section-title">Labor</div>
-    <input id="laborBase" type="number" placeholder="Labor Cost ($)">
-    <input id="markupPercent" type="number" placeholder="Markup %">
-</div>
-
-<button class="calc" onclick="calculate()">CALCULATE</button>
-<div class="total" id="total">$0.00</div>
-
+    <button class="calc" onclick="calculate()">CALCULATE</button>
+    <div class="total" id="total">$0.00</div>
 </div>
 
 <!-- PAD WORK -->
 <div id="pad" class="page">
     <h1>Pad Work</h1>
+    <div class="company">Crest View Construction LLC</div>
     <p>Pad estimator coming next.</p>
 </div>
 
