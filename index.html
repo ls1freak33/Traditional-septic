@@ -43,7 +43,6 @@ body {
 h1 {
     text-align: center;
     color: #facc15;
-    font-size: 30px;
 }
 
 .company {
@@ -118,6 +117,7 @@ button.calc {
 
 <div class="container">
 
+<!-- HOME -->
 <div id="home" class="page active">
     <h1>Construction Estimator</h1>
     <div class="company">Crest View Construction LLC</div>
@@ -128,6 +128,7 @@ button.calc {
     <h1>Land Clearing</h1>
     <div class="company">Crest View Construction LLC</div>
 
+    <!-- CLEARING TYPE -->
     <div class="section">
         <div class="section-title">Clearing Type</div>
         <select id="woodsType">
@@ -138,6 +139,21 @@ button.calc {
         <input id="acres" type="number" step="0.1" placeholder="Acres to Clear">
     </div>
 
+    <!-- CREW & FINISH -->
+    <div class="section">
+        <div class="section-title">Crew & Finish</div>
+        <select id="operators">
+            <option value="1" selected>1 Operator</option>
+            <option value="2">2 Operators</option>
+        </select>
+        <select id="finish">
+            <option value="1.0" selected>Pile Only</option>
+            <option value="1.1">Burn on Site</option>
+            <option value="1.3">Haul Off</option>
+        </select>
+    </div>
+
+    <!-- MOBILIZATION -->
     <div class="section">
         <div class="section-title">Mobilization</div>
         <input id="miles" type="number" placeholder="One-way Miles">
@@ -167,21 +183,30 @@ function val(id) {
 
 function calculateClearing() {
     const acres = val("acres");
-    const daysPerAcre = val("woodsType");
+    const baseDaysPerAcre = val("woodsType");
+    const operators = val("operators");
+    const finishMultiplier = val("finish");
     const miles = val("miles");
     const machines = val("equipment");
 
     const DAILY_RATE = 4750;
     const DAILY_MIN = 4500;
-    const HAUL_RATE = 7; // per mile per machine
+    const HAUL_RATE = 7;
 
-    let days = acres * daysPerAcre;
-    let base = days * DAILY_RATE;
+    // Operator productivity factor
+    const operatorFactor = operators === 2 ? 0.75 : 1.0;
 
-    if (base < DAILY_MIN && acres > 0) base = DAILY_MIN;
+    let days = acres * baseDaysPerAcre * operatorFactor;
+    let clearingCost = days * DAILY_RATE;
+
+    if (clearingCost < DAILY_MIN && acres > 0) {
+        clearingCost = DAILY_MIN;
+    }
+
+    clearingCost *= finishMultiplier;
 
     let mobilization = miles * HAUL_RATE * machines * 2;
-    let total = base + mobilization;
+    let total = clearingCost + mobilization;
 
     let perAcre = acres > 0 ? total / acres : 0;
 
@@ -191,7 +216,8 @@ function calculateClearing() {
     document.getElementById("details").innerHTML =
         `Estimated Days: ${days.toFixed(2)}<br>
          Approx. $${perAcre.toFixed(0)} per acre<br>
-         Mobilization calculated at $7/mile per machine`;
+         ${operators} operator(s) • ${machines} machine(s)<br>
+         Mobilization at $7/mile per machine`;
 }
 </script>
 
