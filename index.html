@@ -44,7 +44,6 @@ h1 {
     text-align: center;
     color: #facc15;
     font-size: 30px;
-    margin-bottom: 5px;
 }
 
 .company {
@@ -70,7 +69,7 @@ h1 {
     margin-bottom: 10px;
 }
 
-input {
+input, select {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -114,56 +113,14 @@ button.calc {
 
 <div class="nav">
     <button onclick="showPage('home')">Home</button>
-    <button onclick="setSystem('conventional')">Conventional Septic</button>
-    <button onclick="setSystem('chamber')">Chamber Septic</button>
-    <button onclick="showPage('pad')">Pad Work</button>
     <button onclick="showPage('clearing')">Land Clearing</button>
 </div>
 
 <div class="container">
 
-<!-- HOME -->
 <div id="home" class="page active">
     <h1>Construction Estimator</h1>
     <div class="company">Crest View Construction LLC</div>
-    <p style="text-align:center">
-        Select a service above to begin an estimate.
-    </p>
-</div>
-
-<!-- SEPTIC -->
-<div id="septic" class="page">
-    <h1 id="septicTitle">Septic Estimator</h1>
-    <div class="company">Crest View Construction LLC</div>
-
-    <div class="section">
-        <div class="section-title">System Details</div>
-        <input id="tankCost" type="number" placeholder="Tank Cost ($)">
-        <input id="fieldLength" type="number" placeholder="Field Length (ft)">
-        <input id="pipeCost" type="number" placeholder="Pipe Cost per ft ($)">
-    </div>
-
-    <div class="section">
-        <div class="section-title">Gravel</div>
-        <input id="rockTons" type="number" placeholder="Rock Tons">
-        <input id="rockCost" type="number" value="17" placeholder="Cost per Ton">
-    </div>
-
-    <div class="section">
-        <div class="section-title">Labor</div>
-        <input id="laborBase" type="number" placeholder="Labor Cost ($)">
-        <input id="markupPercent" type="number" placeholder="Markup %">
-    </div>
-
-    <button class="calc" onclick="calculate()">CALCULATE</button>
-    <div class="total" id="total">$0.00</div>
-</div>
-
-<!-- PAD WORK -->
-<div id="pad" class="page">
-    <h1>Pad Work</h1>
-    <div class="company">Crest View Construction LLC</div>
-    <p>Pad estimator coming next.</p>
 </div>
 
 <!-- LAND CLEARING -->
@@ -172,73 +129,69 @@ button.calc {
     <div class="company">Crest View Construction LLC</div>
 
     <div class="section">
-        <div class="section-title">Medium Woods (Standard)</div>
+        <div class="section-title">Clearing Type</div>
+        <select id="woodsType">
+            <option value="0.75">Light Brush</option>
+            <option value="1.25" selected>Medium Woods</option>
+            <option value="2.0">Heavy Woods</option>
+        </select>
         <input id="acres" type="number" step="0.1" placeholder="Acres to Clear">
-        <input id="mobilization" type="number" placeholder="Mobilization ($)">
+    </div>
+
+    <div class="section">
+        <div class="section-title">Mobilization</div>
+        <input id="miles" type="number" placeholder="One-way Miles">
+        <select id="equipment">
+            <option value="1">One Machine</option>
+            <option value="2" selected>Both Machines</option>
+        </select>
     </div>
 
     <button class="calc" onclick="calculateClearing()">CALCULATE</button>
 
     <div class="total" id="clearingTotal">$0.00</div>
-    <div class="note">
-        Based on 1.25 days/acre @ $4,750/day<br>
-        $4,500/day minimum • Mobilization not included unless entered
-    </div>
+    <div class="note" id="details"></div>
 </div>
 
 </div>
 
 <script>
-let systemType = "conventional";
-
 function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-}
-
-function setSystem(type) {
-    systemType = type;
-    showPage('septic');
-    document.getElementById('septicTitle').innerText =
-        type === "chamber" ? "Chamber Septic Estimator" : "Conventional Septic Estimator";
 }
 
 function val(id) {
     return parseFloat(document.getElementById(id).value) || 0;
 }
 
-function calculate() {
-    let total =
-        val("tankCost") +
-        (val("fieldLength") * val("pipeCost")) +
-        (systemType === "chamber" ? 0 : val("rockTons") * val("rockCost")) +
-        (systemType === "chamber" ? val("laborBase") * 0.85 : val("laborBase"));
-
-    total += total * (val("markupPercent") / 100);
-
-    document.getElementById("total").innerText = "$" + total.toFixed(2);
-}
-
-/* LAND CLEARING CALCULATOR — MEDIUM WOODS */
 function calculateClearing() {
     const acres = val("acres");
-    const mobilization = val("mobilization");
+    const daysPerAcre = val("woodsType");
+    const miles = val("miles");
+    const machines = val("equipment");
 
-    const DAYS_PER_ACRE = 1.25;
     const DAILY_RATE = 4750;
     const DAILY_MIN = 4500;
+    const HAUL_RATE = 7; // per mile per machine
 
-    let days = acres * DAYS_PER_ACRE;
+    let days = acres * daysPerAcre;
     let base = days * DAILY_RATE;
 
-    if (base < DAILY_MIN && acres > 0) {
-        base = DAILY_MIN;
-    }
+    if (base < DAILY_MIN && acres > 0) base = DAILY_MIN;
 
+    let mobilization = miles * HAUL_RATE * machines * 2;
     let total = base + mobilization;
+
+    let perAcre = acres > 0 ? total / acres : 0;
 
     document.getElementById("clearingTotal").innerText =
         "$" + total.toFixed(2);
+
+    document.getElementById("details").innerHTML =
+        `Estimated Days: ${days.toFixed(2)}<br>
+         Approx. $${perAcre.toFixed(0)} per acre<br>
+         Mobilization calculated at $7/mile per machine`;
 }
 </script>
 
