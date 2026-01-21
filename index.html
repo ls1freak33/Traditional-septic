@@ -18,6 +18,7 @@ body {
     gap: 8px;
     padding: 10px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .nav button {
@@ -69,7 +70,7 @@ h1 {
     margin-bottom: 10px;
 }
 
-input, select {
+input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -98,6 +99,12 @@ button.calc {
     margin-top: 10px;
 }
 
+.note {
+    font-size: 13px;
+    text-align: center;
+    color: #9ca3af;
+}
+
 .page { display: none; }
 .page.active { display: block; }
 </style>
@@ -110,6 +117,7 @@ button.calc {
     <button onclick="setSystem('conventional')">Conventional Septic</button>
     <button onclick="setSystem('chamber')">Chamber Septic</button>
     <button onclick="showPage('pad')">Pad Work</button>
+    <button onclick="showPage('clearing')">Land Clearing</button>
 </div>
 
 <div class="container">
@@ -158,6 +166,26 @@ button.calc {
     <p>Pad estimator coming next.</p>
 </div>
 
+<!-- LAND CLEARING -->
+<div id="clearing" class="page">
+    <h1>Land Clearing</h1>
+    <div class="company">Crest View Construction LLC</div>
+
+    <div class="section">
+        <div class="section-title">Medium Woods (Standard)</div>
+        <input id="acres" type="number" step="0.1" placeholder="Acres to Clear">
+        <input id="mobilization" type="number" placeholder="Mobilization ($)">
+    </div>
+
+    <button class="calc" onclick="calculateClearing()">CALCULATE</button>
+
+    <div class="total" id="clearingTotal">$0.00</div>
+    <div class="note">
+        Based on 1.25 days/acre @ $4,750/day<br>
+        $4,500/day minimum • Mobilization not included unless entered
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -189,6 +217,28 @@ function calculate() {
     total += total * (val("markupPercent") / 100);
 
     document.getElementById("total").innerText = "$" + total.toFixed(2);
+}
+
+/* LAND CLEARING CALCULATOR — MEDIUM WOODS */
+function calculateClearing() {
+    const acres = val("acres");
+    const mobilization = val("mobilization");
+
+    const DAYS_PER_ACRE = 1.25;
+    const DAILY_RATE = 4750;
+    const DAILY_MIN = 4500;
+
+    let days = acres * DAYS_PER_ACRE;
+    let base = days * DAILY_RATE;
+
+    if (base < DAILY_MIN && acres > 0) {
+        base = DAILY_MIN;
+    }
+
+    let total = base + mobilization;
+
+    document.getElementById("clearingTotal").innerText =
+        "$" + total.toFixed(2);
 }
 </script>
 
