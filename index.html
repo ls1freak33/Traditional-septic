@@ -28,7 +28,6 @@
     font-family:Arial, sans-serif;
   }
 
-  /* Top nav */
   .nav{
     display:flex;
     gap:10px;
@@ -487,18 +486,51 @@ function openPad(){ showPage('page_pad'); }
 function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
 function money(x){ return '$' + (Math.round(x * 100) / 100).toFixed(2); }
 
-/* Photo preview */
-document.getElementById('s_photos').addEventListener('change', (e)=>{
-  const wrap = document.getElementById('s_photoPreview');
-  wrap.innerHTML = '';
-  const files = Array.from(e.target.files || []);
-  files.slice(0, 12).forEach(file=>{
-    const img = document.createElement('img');
-    img.alt = 'photo';
-    img.src = URL.createObjectURL(file);
-    wrap.appendChild(img);
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
+function cryptoRandomId(){
+  if(window.crypto && crypto.getRandomValues){
+    const a = new Uint32Array(3);
+    crypto.getRandomValues(a);
+    return Array.from(a).map(x=>x.toString(16)).join('');
+  }
+  return 'id_' + Math.random().toString(16).slice(2);
+}
+
+/* ✅ NEW: Safe popup opener so app doesn't crash on mobile */
+function openPrintWindow(html){
+  const win = window.open('', '_blank');
+  if(!win){
+    alert("Popup blocked.\n\nFix: allow popups for this site (browser settings) then try again.");
+    return null;
+  }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ try{ win.print(); }catch(e){} }, 300);
+  return win;
+}
+
+/* Photo preview (safe) */
+(function(){
+  const input = document.getElementById('s_photos');
+  if(!input) return;
+  input.addEventListener('change', (e)=>{
+    const wrap = document.getElementById('s_photoPreview');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    const files = Array.from(e.target.files || []);
+    files.slice(0, 12).forEach(file=>{
+      const img = document.createElement('img');
+      img.alt = 'photo';
+      img.src = URL.createObjectURL(file);
+      wrap.appendChild(img);
+    });
   });
-});
+})();
 
 /* Septic calculator */
 function calcSeptic(){
@@ -531,7 +563,6 @@ function calcSeptic(){
 
   let subtotal = (tank + pipeTotal + rockTotal + haulTotal + treeTotal) + laborBase;
   let total = subtotal + (subtotal * (markupPct / 100));
-
   if(total < 9000) total = 9000;
 
   document.getElementById('s_total').textContent = money(total);
@@ -548,7 +579,6 @@ function calcSeptic(){
   };
 }
 
-/* ✅ FIXED: no <script>window.print()</script> inside the quote HTML */
 function printSepticQuote(){
   const r = calcSeptic();
   const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
@@ -563,10 +593,10 @@ function printSepticQuote(){
     r.materialsBreakdown.haulTotal +
     r.materialsBreakdown.treeTotal;
 
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <html>
-    <head>
+  openPrintWindow(`
+    <html><head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Proposal</title>
       <style>
         body { font-family: Arial; padding: 40px; }
@@ -577,9 +607,7 @@ function printSepticQuote(){
         .right { text-align:right; }
         .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
       </style>
-    </head>
-    <body>
-
+    </head><body>
       <h1>Crest View Construction LLC</h1>
       <p><strong>Customer:</strong> ${escapeHtml(r.customer || "Customer")}<br>
       <strong>Job #:</strong> ${escapeHtml(r.job || "—")}<br>
@@ -607,18 +635,10 @@ function printSepticQuote(){
       <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
 
       <p><strong>Acceptance of Proposal:</strong></p>
-      <div class="line"></div>
-      <p>Customer Signature</p>
-
-      <div class="line"></div>
-      <p>Date</p>
-
-    </body>
-    </html>
+      <div class="line"></div><p>Customer Signature</p>
+      <div class="line"></div><p>Date</p>
+    </body></html>
   `);
-  win.document.close();
-  win.focus();
-  setTimeout(()=>win.print(), 250);
 }
 
 /* Pad calculator */
@@ -661,7 +681,6 @@ function calcPad(){
   };
 }
 
-/* ✅ FIXED: no <script>window.print()</script> inside the quote HTML */
 function printPadQuote(){
   const r = calcPad();
   const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
@@ -669,10 +688,10 @@ function printPadQuote(){
     ? "Progress payments required as work progresses."
     : "Payment due upon completion.";
 
-  const win = window.open('', '_blank');
-  win.document.write(`
-    <html>
-    <head>
+  openPrintWindow(`
+    <html><head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Proposal</title>
       <style>
         body { font-family: Arial; padding: 40px; }
@@ -683,9 +702,7 @@ function printPadQuote(){
         .right { text-align:right; }
         .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
       </style>
-    </head>
-    <body>
-
+    </head><body>
       <h1>Crest View Construction LLC</h1>
       <p><strong>Customer:</strong> ${escapeHtml(r.customer || "Customer")}<br>
       <strong>Job #:</strong> ${escapeHtml(r.job || "—")}<br>
@@ -694,38 +711,15 @@ function printPadQuote(){
       <h2>Pad Details</h2>
       <p><strong>Estimated Fill:</strong> ${r.cubicYards.toFixed(2)} yd³</p>
 
-      <h2>Materials</h2>
-      <table>
-        <tr><th>Description</th><th class="right">Amount</th></tr>
-        <tr><td>Fill Material</td><td class="right">${money(r.breakdown.fillTotal)}</td></tr>
-        <tr><td><strong>Materials Subtotal</strong></td><td class="right"><strong>${money(r.materials)}</strong></td></tr>
-      </table>
-
-      <h2>Labor / Equipment / Mobilization</h2>
-      <table>
-        <tr><th>Description</th><th class="right">Amount</th></tr>
-        <tr><td>Equipment</td><td class="right">${money(r.breakdown.equipTotal)}</td></tr>
-        <tr><td>Labor / Site Work</td><td class="right">${money(r.breakdown.labor)}</td></tr>
-        <tr><td><strong>Labor Subtotal</strong></td><td class="right"><strong>${money(r.laborSite)}</strong></td></tr>
-      </table>
-
       <h2>Total Project Price: ${money(r.total)}</h2>
       <p><strong>Deposit to Schedule:</strong> ${money(deposit)}</p>
       <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
 
       <p><strong>Acceptance of Proposal:</strong></p>
-      <div class="line"></div>
-      <p>Customer Signature</p>
-
-      <div class="line"></div>
-      <p>Date</p>
-
-    </body>
-    </html>
+      <div class="line"></div><p>Customer Signature</p>
+      <div class="line"></div><p>Date</p>
+    </body></html>
   `);
-  win.document.close();
-  win.focus();
-  setTimeout(()=>win.print(), 250);
 }
 
 /* Offline Save / Load */
@@ -816,20 +810,6 @@ function loadJob(id){
     document.getElementById('p_location').value = data.location || '';
     alert('Loaded job ✅ (Please verify inputs, then Calculate)');
   }
-}
-
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, m => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[m]));
-}
-function cryptoRandomId(){
-  if(window.crypto && crypto.getRandomValues){
-    const a = new Uint32Array(3);
-    crypto.getRandomValues(a);
-    return Array.from(a).map(x=>x.toString(16)).join('');
-  }
-  return 'id_' + Math.random().toString(16).slice(2);
 }
 
 goHome();
