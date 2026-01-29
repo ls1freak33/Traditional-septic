@@ -226,6 +226,7 @@
   .modalBtns{
     display:flex;
     gap:10px;
+    flex-wrap:wrap;
   }
   .modalBtns button{
     border:none;
@@ -234,6 +235,7 @@
     font-weight:900;
     cursor:pointer;
   }
+  .modalBtns .copy{ background:var(--blue); color:#fff; }
   .modalBtns .print{ background:var(--green); }
   .modalBtns .close{ background:#ddd; }
 
@@ -246,6 +248,32 @@
   .qRight{ text-align:right; }
   .qTotal{ font-size:20px; font-weight:900; }
   .sigline{ border-top:1px solid #111; width:280px; margin-top:40px; }
+
+  /* VERBAL styling */
+  .vCard{
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:14px;
+    margin-top:12px;
+  }
+  .vBig{
+    font-size:30px;
+    font-weight:1000;
+    text-align:center;
+    margin:0;
+  }
+  .vLine{
+    text-align:center;
+    color:#333;
+    font-weight:800;
+    margin:6px 0 0;
+  }
+  .vSmall{
+    margin-top:10px;
+    color:#333;
+    line-height:1.35;
+  }
+  .vSmall b{ color:#000; }
 
   /* PRINT ONLY QUOTE */
   @media print{
@@ -425,6 +453,7 @@
       </div>
 
       <button class="btn btn-yellow" onclick="calcSeptic()">CALCULATE TOTAL</button>
+      <button class="btn btn-blue" onclick="showSepticVerbal()">VERBAL QUOTE (COPY)</button>
       <button class="btn btn-green" onclick="showSepticQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
       <button class="btn btn-blue" onclick="saveCurrentJob('septic')">SAVE JOB OFFLINE</button>
 
@@ -500,6 +529,7 @@
       </div>
 
       <button class="btn btn-yellow" onclick="calcPad()">CALCULATE PAD TOTAL</button>
+      <button class="btn btn-blue" onclick="showPadVerbal()">VERBAL QUOTE (COPY)</button>
       <button class="btn btn-green" onclick="showPadQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
       <button class="btn btn-blue" onclick="saveCurrentJob('pad')">SAVE JOB OFFLINE</button>
 
@@ -509,12 +539,13 @@
   </div>
 </div>
 
-<!-- QUOTE MODAL -->
+<!-- QUOTE / VERBAL MODAL -->
 <div id="quoteModal" class="modal" aria-hidden="true">
   <div class="modalCard">
     <div class="modalTop">
-      <h2>Customer Quote</h2>
+      <h2 id="modalTitle">Customer Quote</h2>
       <div class="modalBtns">
+        <button class="copy" onclick="copyModalText()">COPY</button>
         <button class="print" onclick="window.print()">PRINT</button>
         <button class="close" onclick="closeQuote()">CLOSE</button>
       </div>
@@ -560,9 +591,13 @@ function cryptoRandomId(){
   return 'id_' + Math.random().toString(16).slice(2);
 }
 
-/* Quote modal */
-function openQuote(html){
+/* Modal */
+let lastCopyText = "";
+function openQuote(title, html, copyText){
+  document.getElementById('modalTitle').textContent = title;
   document.getElementById('quoteContent').innerHTML = html;
+  lastCopyText = copyText || "";
+
   const m = document.getElementById('quoteModal');
   m.classList.add('open');
   m.setAttribute('aria-hidden', 'false');
@@ -573,9 +608,40 @@ function closeQuote(){
   m.classList.remove('open');
   m.setAttribute('aria-hidden', 'true');
   document.getElementById('quoteContent').innerHTML = '';
+  lastCopyText = "";
+}
+async function copyModalText(){
+  const text = lastCopyText || (document.getElementById('quoteContent').innerText || "");
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("Copied ✅");
+  }catch(e){
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert("Copied ✅");
+  }
 }
 
-/* Septic calculator */
+/* Common terms */
+function depositAndTerms(total){
+  if(total >= 10000){
+    return {
+      deposit: total * 0.15,
+      terms: "Progress payments required as work progresses."
+    };
+  }
+  return {
+    deposit: 0,
+    terms: "Payment due upon completion."
+  };
+}
+
+/* SEPTIC calculator */
 function calcSeptic(){
   const tank = n('s_tank');
   const fieldFt = n('s_fieldFt');
@@ -606,7 +672,9 @@ function calcSeptic(){
 
   let subtotal = (tank + pipeTotal + rockTotal + haulTotal + treeTotal) + laborBase;
   let total = subtotal + (subtotal * (markupPct / 100));
-  if(total < 9000) total = 9000;
+
+  const minApplied = total < 9000;
+  if(minApplied) total = 9000;
 
   document.getElementById('s_total').textContent = money(total);
 
@@ -618,17 +686,15 @@ function calcSeptic(){
     materialsBreakdown: { tank, pipeTotal, rockTotal, haulTotal, treeTotal },
     laborSite: laborBase,
     markupPct,
-    total
+    total,
+    minApplied
   };
 }
 
-function showSepticQuote(){
+/* SEPTIC verbal */
+function showSepticVerbal(){
   const r = calcSeptic();
-
-  const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
-  const paymentTerms = r.total >= 10000
-    ? "Progress payments required as work progresses."
-    : "Payment due upon completion.";
+  const dt = depositAndTerms(r.total);
 
   const materialsTotal =
     r.materialsBreakdown.tank +
@@ -637,7 +703,61 @@ function showSepticQuote(){
     r.materialsBreakdown.haulTotal +
     r.materialsBreakdown.treeTotal;
 
-  openQuote(`
+  const sys = (r.mode === 'chamber') ? "Chamber Septic" : "Conventional Septic";
+  const minNote = r.minApplied ? " (min $9,000 applied)" : "";
+
+  const html = `
+    <div class="vCard">
+      <p class="vBig">TOTAL: ${money(r.total)}</p>
+      <p class="vLine">${sys}${minNote}</p>
+
+      <div class="vSmall">
+        <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
+        <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
+        <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
+
+        <b>Quick breakdown:</b><br>
+        Materials: ${money(materialsTotal)}<br>
+        Labor / Site / Mobilization: ${money(r.laborSite)}<br>
+        Markup: ${r.markupPct.toFixed(0)}%<br><br>
+
+        <b>Deposit:</b> ${money(dt.deposit)}<br>
+        <b>Terms:</b> ${escapeHtml(dt.terms)}
+      </div>
+    </div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — VERBAL ESTIMATE
+${sys}${minNote}
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+TOTAL: ${money(r.total)}
+
+Quick breakdown:
+- Materials: ${money(materialsTotal)}
+- Labor/Site/Mobilization: ${money(r.laborSite)}
+- Markup: ${r.markupPct.toFixed(0)}%
+
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Verbal Quote (Copy/Share)", html, copyText);
+}
+
+/* SEPTIC full quote */
+function showSepticQuote(){
+  const r = calcSeptic();
+  const dt = depositAndTerms(r.total);
+
+  const materialsTotal =
+    r.materialsBreakdown.tank +
+    r.materialsBreakdown.pipeTotal +
+    r.materialsBreakdown.rockTotal +
+    r.materialsBreakdown.haulTotal +
+    r.materialsBreakdown.treeTotal;
+
+  const html = `
     <h1 class="qTitle">Crest View Construction LLC</h1>
     <div class="qMuted">Septic System Estimate</div>
 
@@ -668,8 +788,8 @@ function showSepticQuote(){
     <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
 
     <div class="qBox">
-      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
-      <b>Payment Terms:</b> ${paymentTerms}
+      <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
+      <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
     </div>
 
     <div class="qBox">
@@ -678,10 +798,21 @@ function showSepticQuote(){
 
     <div class="sigline"></div><div>Customer Signature</div>
     <div class="sigline"></div><div>Date</div>
-  `);
+  `;
+
+  const copyText =
+`Crest View Construction LLC — QUOTE
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+System: ${r.mode === 'chamber' ? 'Chamber Septic' : 'Conventional Septic'}
+Total: ${money(r.total)}
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Customer Quote (Print/Share)", html, copyText);
 }
 
-/* Pad calculator */
+/* PAD calculator */
 function calcPad(){
   const len = n('p_len');
   const wid = n('p_wid');
@@ -718,15 +849,60 @@ function calcPad(){
   };
 }
 
+/* PAD verbal */
+function showPadVerbal(){
+  const r = calcPad();
+  const dt = depositAndTerms(r.total);
+
+  const html = `
+    <div class="vCard">
+      <p class="vBig">TOTAL: ${money(r.total)}</p>
+      <p class="vLine">Building Pad Work</p>
+
+      <div class="vSmall">
+        <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
+        <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
+        <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
+
+        <b>Quick breakdown:</b><br>
+        Fill volume: ${r.cubicYards.toFixed(2)} yd³<br>
+        Fill: ${money(r.fillTotal)}<br>
+        Equipment: ${money(r.equipTotal)}<br>
+        Labor / Site Work: ${money(r.labor)}<br>
+        Markup: ${r.markupPct.toFixed(0)}%<br><br>
+
+        <b>Deposit:</b> ${money(dt.deposit)}<br>
+        <b>Terms:</b> ${escapeHtml(dt.terms)}
+      </div>
+    </div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — VERBAL ESTIMATE
+Building Pad Work
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+TOTAL: ${money(r.total)}
+
+Quick breakdown:
+- Fill volume: ${r.cubicYards.toFixed(2)} yd³
+- Fill: ${money(r.fillTotal)}
+- Equipment: ${money(r.equipTotal)}
+- Labor/Site: ${money(r.labor)}
+- Markup: ${r.markupPct.toFixed(0)}%
+
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Verbal Quote (Copy/Share)", html, copyText);
+}
+
+/* PAD full quote */
 function showPadQuote(){
   const r = calcPad();
+  const dt = depositAndTerms(r.total);
 
-  const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
-  const paymentTerms = r.total >= 10000
-    ? "Progress payments required as work progresses."
-    : "Payment due upon completion.";
-
-  openQuote(`
+  const html = `
     <h1 class="qTitle">Crest View Construction LLC</h1>
     <div class="qMuted">Building Pad Estimate</div>
 
@@ -748,8 +924,8 @@ function showPadQuote(){
     <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
 
     <div class="qBox">
-      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
-      <b>Payment Terms:</b> ${paymentTerms}
+      <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
+      <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
     </div>
 
     <div class="qBox">
@@ -758,7 +934,17 @@ function showPadQuote(){
 
     <div class="sigline"></div><div>Customer Signature</div>
     <div class="sigline"></div><div>Date</div>
-  `);
+  `;
+
+  const copyText =
+`Crest View Construction LLC — QUOTE
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+Total: ${money(r.total)}
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Customer Quote (Print/Share)", html, copyText);
 }
 
 /* Offline Save / Load */
