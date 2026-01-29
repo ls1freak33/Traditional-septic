@@ -28,6 +28,7 @@
     font-family:Arial, sans-serif;
   }
 
+  /* Top nav */
   .nav{
     display:flex;
     gap:10px;
@@ -113,7 +114,7 @@
     font-weight:700;
   }
 
-  input, select, textarea{
+  input, select{
     width:100%;
     padding:11px;
     margin-bottom:10px;
@@ -168,12 +169,7 @@
     font-size:12px;
   }
 
-  .jobList{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-
+  .jobList{ display:flex; flex-direction:column; gap:10px; }
   .jobItem{
     border:1px solid #444;
     border-radius:12px;
@@ -196,17 +192,79 @@
     cursor:pointer;
   }
 
-  .photoPreview{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
+  /* QUOTE MODAL */
+  .modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.75);
+    z-index:999;
+    padding:14px;
+    overflow:auto;
   }
-  .photoPreview img{
-    width:90px;
-    height:90px;
-    object-fit:cover;
+  .modal.open{ display:block; }
+  .modalCard{
+    max-width:900px;
+    margin:0 auto;
+    background:#fff;
+    color:#111;
+    border-radius:14px;
+    padding:18px;
+  }
+  .modalTop{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+  .modalTop h2{
+    margin:0;
+    font-size:18px;
+  }
+  .modalBtns{
+    display:flex;
+    gap:10px;
+  }
+  .modalBtns button{
+    border:none;
     border-radius:10px;
-    border:1px solid var(--yellow);
+    padding:10px 14px;
+    font-weight:900;
+    cursor:pointer;
+  }
+  .modalBtns .print{ background:var(--green); }
+  .modalBtns .close{ background:#ddd; }
+
+  /* Quote styling */
+  .qTitle{ text-align:center; margin:0; }
+  .qMuted{ text-align:center; color:#555; margin-top:4px; }
+  .qBox{ border:1px solid #ddd; padding:12px; border-radius:10px; margin-top:12px; }
+  .qTable{ width:100%; border-collapse:collapse; margin-top:10px; }
+  .qTable th, .qTable td{ border:1px solid #ddd; padding:10px; text-align:left; }
+  .qRight{ text-align:right; }
+  .qTotal{ font-size:20px; font-weight:900; }
+  .sigline{ border-top:1px solid #111; width:280px; margin-top:40px; }
+
+  /* PRINT ONLY QUOTE */
+  @media print{
+    body{ background:#fff; }
+    .nav, .container{ display:none !important; }
+    .modal{
+      display:block !important;
+      position:static !important;
+      inset:auto !important;
+      background:#fff !important;
+      padding:0 !important;
+    }
+    .modalTop{ display:none !important; }
+    .modalCard{
+      box-shadow:none !important;
+      border-radius:0 !important;
+      max-width:none !important;
+      padding:0 !important;
+    }
   }
 </style>
 </head>
@@ -249,7 +307,7 @@
 
       <div class="section">
         <div class="section-title">Jobs Stored Offline</div>
-        <div class="subnote">Stored in this phone/browser (localStorage). Photos are preview-only for now.</div>
+        <div class="subnote">Stored in this phone/browser (localStorage).</div>
         <div id="jobsList" class="jobList"></div>
         <button class="btn btn-yellow" onclick="goHome()">Back</button>
       </div>
@@ -277,13 +335,6 @@
         </div>
         <label>Job Location</label>
         <input id="s_location" placeholder="Job Location" />
-      </div>
-
-      <div class="section">
-        <div class="section-title">Site Photos (preview only)</div>
-        <input id="s_photos" type="file" accept="image/*" multiple />
-        <div class="subnote">Photos preview on screen; not saved offline yet.</div>
-        <div id="s_photoPreview" class="photoPreview"></div>
       </div>
 
       <div class="section">
@@ -374,7 +425,7 @@
       </div>
 
       <button class="btn btn-yellow" onclick="calcSeptic()">CALCULATE TOTAL</button>
-      <button class="btn btn-green" onclick="printSepticQuote()">GENERATE CUSTOMER QUOTE</button>
+      <button class="btn btn-green" onclick="showSepticQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
       <button class="btn btn-blue" onclick="saveCurrentJob('septic')">SAVE JOB OFFLINE</button>
 
       <div class="total" id="s_total">$0.00</div>
@@ -422,7 +473,6 @@
 
       <div class="section">
         <div class="section-title">Fill / Equipment / Labor</div>
-
         <div class="grid2">
           <div>
             <label>Fill Cost ($ per cubic yard)</label>
@@ -450,15 +500,26 @@
       </div>
 
       <button class="btn btn-yellow" onclick="calcPad()">CALCULATE PAD TOTAL</button>
-      <button class="btn btn-green" onclick="printPadQuote()">GENERATE CUSTOMER QUOTE</button>
+      <button class="btn btn-green" onclick="showPadQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
       <button class="btn btn-blue" onclick="saveCurrentJob('pad')">SAVE JOB OFFLINE</button>
 
       <div class="total" id="p_total">$0.00</div>
-      <div class="subnote" style="text-align:center;margin-top:8px;">
-        Pad volume uses: (L × W × depth(ft)) ÷ 27
-      </div>
     </div>
 
+  </div>
+</div>
+
+<!-- QUOTE MODAL -->
+<div id="quoteModal" class="modal" aria-hidden="true">
+  <div class="modalCard">
+    <div class="modalTop">
+      <h2>Customer Quote</h2>
+      <div class="modalBtns">
+        <button class="print" onclick="window.print()">PRINT</button>
+        <button class="close" onclick="closeQuote()">CLOSE</button>
+      </div>
+    </div>
+    <div id="quoteContent"></div>
   </div>
 </div>
 
@@ -485,7 +546,6 @@ function openPad(){ showPage('page_pad'); }
 /* Helpers */
 function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
 function money(x){ return '$' + (Math.round(x * 100) / 100).toFixed(2); }
-
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -500,37 +560,20 @@ function cryptoRandomId(){
   return 'id_' + Math.random().toString(16).slice(2);
 }
 
-/* ✅ NEW: Safe popup opener so app doesn't crash on mobile */
-function openPrintWindow(html){
-  const win = window.open('', '_blank');
-  if(!win){
-    alert("Popup blocked.\n\nFix: allow popups for this site (browser settings) then try again.");
-    return null;
-  }
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(()=>{ try{ win.print(); }catch(e){} }, 300);
-  return win;
+/* Quote modal */
+function openQuote(html){
+  document.getElementById('quoteContent').innerHTML = html;
+  const m = document.getElementById('quoteModal');
+  m.classList.add('open');
+  m.setAttribute('aria-hidden', 'false');
+  window.scrollTo(0,0);
 }
-
-/* Photo preview (safe) */
-(function(){
-  const input = document.getElementById('s_photos');
-  if(!input) return;
-  input.addEventListener('change', (e)=>{
-    const wrap = document.getElementById('s_photoPreview');
-    if(!wrap) return;
-    wrap.innerHTML = '';
-    const files = Array.from(e.target.files || []);
-    files.slice(0, 12).forEach(file=>{
-      const img = document.createElement('img');
-      img.alt = 'photo';
-      img.src = URL.createObjectURL(file);
-      wrap.appendChild(img);
-    });
-  });
-})();
+function closeQuote(){
+  const m = document.getElementById('quoteModal');
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden', 'true');
+  document.getElementById('quoteContent').innerHTML = '';
+}
 
 /* Septic calculator */
 function calcSeptic(){
@@ -579,8 +622,9 @@ function calcSeptic(){
   };
 }
 
-function printSepticQuote(){
+function showSepticQuote(){
   const r = calcSeptic();
+
   const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
   const paymentTerms = r.total >= 10000
     ? "Progress payments required as work progresses."
@@ -593,51 +637,47 @@ function printSepticQuote(){
     r.materialsBreakdown.haulTotal +
     r.materialsBreakdown.treeTotal;
 
-  openPrintWindow(`
-    <html><head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Proposal</title>
-      <style>
-        body { font-family: Arial; padding: 40px; }
-        h1 { text-align: center; margin:0; }
-        h2 { margin-top:20px; }
-        table { width:100%; border-collapse:collapse; margin-top:10px; }
-        td,th { border:1px solid #ddd; padding:10px; }
-        .right { text-align:right; }
-        .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
-      </style>
-    </head><body>
-      <h1>Crest View Construction LLC</h1>
-      <p><strong>Customer:</strong> ${escapeHtml(r.customer || "Customer")}<br>
-      <strong>Job #:</strong> ${escapeHtml(r.job || "—")}<br>
-      <strong>Location:</strong> ${escapeHtml(r.location || "Job Site")}</p>
+  openQuote(`
+    <h1 class="qTitle">Crest View Construction LLC</h1>
+    <div class="qMuted">Septic System Estimate</div>
 
-      <h2>Materials</h2>
-      <table>
-        <tr><th>Description</th><th class="right">Amount</th></tr>
-        <tr><td>Tank</td><td class="right">${money(r.materialsBreakdown.tank)}</td></tr>
-        <tr><td>Pipe</td><td class="right">${money(r.materialsBreakdown.pipeTotal)}</td></tr>
-        <tr><td>Rock</td><td class="right">${money(r.materialsBreakdown.rockTotal)}</td></tr>
-        <tr><td>Hauling</td><td class="right">${money(r.materialsBreakdown.haulTotal)}</td></tr>
-        <tr><td>Tree Clearing</td><td class="right">${money(r.materialsBreakdown.treeTotal)}</td></tr>
-        <tr><td><strong>Materials Subtotal</strong></td><td class="right"><strong>${money(materialsTotal)}</strong></td></tr>
-      </table>
+    <div class="qBox">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>System Type:</b> ${r.mode === 'chamber' ? 'Chamber Septic' : 'Conventional Septic'}
+    </div>
 
-      <h2>Labor / Site Work / Mobilization</h2>
-      <table>
-        <tr><th>Description</th><th class="right">Amount</th></tr>
-        <tr><td>Labor / Site Work / Mobilization</td><td class="right">${money(r.laborSite)}</td></tr>
-      </table>
+    <h2>Materials</h2>
+    <table class="qTable">
+      <tr><th>Description</th><th class="qRight">Amount</th></tr>
+      <tr><td>Tank</td><td class="qRight">${money(r.materialsBreakdown.tank)}</td></tr>
+      <tr><td>Pipe</td><td class="qRight">${money(r.materialsBreakdown.pipeTotal)}</td></tr>
+      <tr><td>Rock</td><td class="qRight">${money(r.materialsBreakdown.rockTotal)}</td></tr>
+      <tr><td>Hauling</td><td class="qRight">${money(r.materialsBreakdown.haulTotal)}</td></tr>
+      <tr><td>Tree Clearing</td><td class="qRight">${money(r.materialsBreakdown.treeTotal)}</td></tr>
+      <tr><td><b>Materials Subtotal</b></td><td class="qRight"><b>${money(materialsTotal)}</b></td></tr>
+    </table>
 
-      <h2>Total Project Price: ${money(r.total)}</h2>
-      <p><strong>Deposit to Schedule:</strong> ${money(deposit)}</p>
-      <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
+    <h2>Labor / Site Work / Mobilization</h2>
+    <table class="qTable">
+      <tr><th>Description</th><th class="qRight">Amount</th></tr>
+      <tr><td>Labor / Site Work / Mobilization</td><td class="qRight">${money(r.laborSite)}</td></tr>
+    </table>
 
-      <p><strong>Acceptance of Proposal:</strong></p>
-      <div class="line"></div><p>Customer Signature</p>
-      <div class="line"></div><p>Date</p>
-    </body></html>
+    <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+
+    <div class="qBox">
+      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
+      <b>Payment Terms:</b> ${paymentTerms}
+    </div>
+
+    <div class="qBox">
+      <b>Scope:</b> Septic system installation including excavation, materials, labor, equipment, and site restoration per approved plans and local requirements.
+    </div>
+
+    <div class="sigline"></div><div>Customer Signature</div>
+    <div class="sigline"></div><div>Date</div>
   `);
 }
 
@@ -660,10 +700,7 @@ function calcPad(){
   const labor = n('p_labor');
   const markupPct = n('p_markup');
 
-  const materials = fillTotal;
-  const laborSite = equipTotal + labor;
-
-  let subtotal = materials + laborSite;
+  let subtotal = (fillTotal + equipTotal + labor);
   let total = subtotal + (subtotal * (markupPct/100));
 
   document.getElementById('p_total').textContent = money(total);
@@ -673,52 +710,54 @@ function calcPad(){
     job: document.getElementById('p_job').value || '',
     location: document.getElementById('p_location').value || '',
     cubicYards,
-    materials,
-    laborSite,
+    fillTotal,
+    equipTotal,
+    labor,
     markupPct,
-    total,
-    breakdown: { fillTotal, equipTotal, labor }
+    total
   };
 }
 
-function printPadQuote(){
+function showPadQuote(){
   const r = calcPad();
+
   const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
   const paymentTerms = r.total >= 10000
     ? "Progress payments required as work progresses."
     : "Payment due upon completion.";
 
-  openPrintWindow(`
-    <html><head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Proposal</title>
-      <style>
-        body { font-family: Arial; padding: 40px; }
-        h1 { text-align: center; margin:0; }
-        h2 { margin-top:20px; }
-        table { width:100%; border-collapse:collapse; margin-top:10px; }
-        td,th { border:1px solid #ddd; padding:10px; }
-        .right { text-align:right; }
-        .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
-      </style>
-    </head><body>
-      <h1>Crest View Construction LLC</h1>
-      <p><strong>Customer:</strong> ${escapeHtml(r.customer || "Customer")}<br>
-      <strong>Job #:</strong> ${escapeHtml(r.job || "—")}<br>
-      <strong>Location:</strong> ${escapeHtml(r.location || "Job Site")}</p>
+  openQuote(`
+    <h1 class="qTitle">Crest View Construction LLC</h1>
+    <div class="qMuted">Building Pad Estimate</div>
 
-      <h2>Pad Details</h2>
-      <p><strong>Estimated Fill:</strong> ${r.cubicYards.toFixed(2)} yd³</p>
+    <div class="qBox">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>Estimated Fill Volume:</b> ${r.cubicYards.toFixed(2)} yd³
+    </div>
 
-      <h2>Total Project Price: ${money(r.total)}</h2>
-      <p><strong>Deposit to Schedule:</strong> ${money(deposit)}</p>
-      <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
+    <h2>Costs</h2>
+    <table class="qTable">
+      <tr><th>Description</th><th class="qRight">Amount</th></tr>
+      <tr><td>Fill Material</td><td class="qRight">${money(r.fillTotal)}</td></tr>
+      <tr><td>Equipment</td><td class="qRight">${money(r.equipTotal)}</td></tr>
+      <tr><td>Labor / Site Work</td><td class="qRight">${money(r.labor)}</td></tr>
+    </table>
 
-      <p><strong>Acceptance of Proposal:</strong></p>
-      <div class="line"></div><p>Customer Signature</p>
-      <div class="line"></div><p>Date</p>
-    </body></html>
+    <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+
+    <div class="qBox">
+      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
+      <b>Payment Terms:</b> ${paymentTerms}
+    </div>
+
+    <div class="qBox">
+      <b>Scope:</b> Building pad construction including grading, placement of fill material as needed, equipment operation, and final shaping/leveling suitable for building/foundation preparation.
+    </div>
+
+    <div class="sigline"></div><div>Customer Signature</div>
+    <div class="sigline"></div><div>Date</div>
   `);
 }
 
@@ -732,29 +771,20 @@ function getJobs(){
 function setJobs(jobs){
   localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
 }
-
 function saveCurrentJob(type){
   const now = new Date();
   const stamp = now.toISOString();
 
-  let payload;
-  if(type === 'septic'){
-    payload = { type:'septic', data: calcSeptic() };
-  } else {
-    payload = { type:'pad', data: calcPad() };
-  }
+  const payload = (type === 'septic')
+    ? { type:'septic', data: calcSeptic() }
+    : { type:'pad', data: calcPad() };
 
   const name = (payload.data.customer || '').trim();
   const jobNo = (payload.data.job || '').trim();
   const label = `${type.toUpperCase()} • ${name || 'No Name'} • ${jobNo || 'No Job#'} • ${now.toLocaleString()}`;
 
   const jobs = getJobs();
-  jobs.unshift({
-    id: cryptoRandomId(),
-    label,
-    createdAt: stamp,
-    payload
-  });
+  jobs.unshift({ id: cryptoRandomId(), label, createdAt: stamp, payload });
   setJobs(jobs);
   alert('Saved offline ✅');
 }
@@ -802,13 +832,13 @@ function loadJob(id){
     document.getElementById('s_customer').value = data.customer || '';
     document.getElementById('s_job').value = data.job || '';
     document.getElementById('s_location').value = data.location || '';
-    alert('Loaded job ✅ (Please verify inputs, then Calculate)');
+    alert('Loaded job ✅ (Re-enter estimate inputs if needed, then Calculate)');
   } else {
     openPad();
     document.getElementById('p_customer').value = data.customer || '';
     document.getElementById('p_job').value = data.job || '';
     document.getElementById('p_location').value = data.location || '';
-    alert('Loaded job ✅ (Please verify inputs, then Calculate)');
+    alert('Loaded job ✅ (Re-enter estimate inputs if needed, then Calculate)');
   }
 }
 
