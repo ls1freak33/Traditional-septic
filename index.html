@@ -464,9 +464,7 @@
 </div>
 
 <script>
-/* -----------------------------
-   Navigation
------------------------------- */
+/* Navigation */
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -485,19 +483,11 @@ function openSeptic(mode){
 }
 function openPad(){ showPage('page_pad'); }
 
-/* -----------------------------
-   Helpers
------------------------------- */
-function n(id){
-  return parseFloat(document.getElementById(id).value) || 0;
-}
-function money(x){
-  return '$' + (Math.round(x * 100) / 100).toFixed(2);
-}
+/* Helpers */
+function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function money(x){ return '$' + (Math.round(x * 100) / 100).toFixed(2); }
 
-/* -----------------------------
-   Septic Photo Preview (not saved)
------------------------------- */
+/* Photo preview */
 document.getElementById('s_photos').addEventListener('change', (e)=>{
   const wrap = document.getElementById('s_photoPreview');
   wrap.innerHTML = '';
@@ -510,9 +500,7 @@ document.getElementById('s_photos').addEventListener('change', (e)=>{
   });
 });
 
-/* -----------------------------
-   Septic Calculator
------------------------------- */
+/* Septic calculator */
 function calcSeptic(){
   const tank = n('s_tank');
   const fieldFt = n('s_fieldFt');
@@ -536,19 +524,14 @@ function calcSeptic(){
 
   const markupPct = n('s_markup');
 
-  // Chamber adjustments (your choice A)
   if(septicMode === 'chamber'){
     rockTotal = 0;
-    laborBase = laborBase * 0.85; // 15% reduction
+    laborBase = laborBase * 0.85;
   }
 
-  let materials = tank + pipeTotal + rockTotal + haulTotal + treeTotal;
-  let laborSite = laborBase;
-
-  let subtotal = materials + laborSite;
+  let subtotal = (tank + pipeTotal + rockTotal + haulTotal + treeTotal) + laborBase;
   let total = subtotal + (subtotal * (markupPct / 100));
 
-  // Minimum job price
   if(total < 9000) total = 9000;
 
   document.getElementById('s_total').textContent = money(total);
@@ -558,18 +541,14 @@ function calcSeptic(){
     customer: document.getElementById('s_customer').value || '',
     job: document.getElementById('s_job').value || '',
     location: document.getElementById('s_location').value || '',
-    materialsBreakdown: {
-      tank, pipeTotal, rockTotal, haulTotal, treeTotal
-    },
-    laborSite,
+    materialsBreakdown: { tank, pipeTotal, rockTotal, haulTotal, treeTotal },
+    laborSite: laborBase,
     markupPct,
     total
   };
 }
 
-/* -----------------------------
-   Septic Quote
------------------------------- */
+/* ✅ FIXED: no <script>window.print()</script> inside the quote HTML */
 function printSepticQuote(){
   const r = calcSeptic();
   const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
@@ -586,82 +565,63 @@ function printSepticQuote(){
 
   const win = window.open('', '_blank');
   win.document.write(`
-  <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Customer Quote</title>
-    <style>
-      body{font-family:Arial; padding:32px; color:#111;}
-      h1{margin:0 0 6px; text-align:center;}
-      h2{margin:18px 0 8px;}
-      .muted{color:#555;}
-      table{width:100%; border-collapse:collapse; margin-top:10px;}
-      td,th{border:1px solid #ddd; padding:10px; text-align:left;}
-      .right{text-align:right;}
-      .total{font-size:20px; font-weight:900;}
-      .box{border:1px solid #ddd; padding:12px; margin-top:14px;}
-      .sigline{border-top:1px solid #111; width:280px; margin-top:40px;}
-    </style>
-  </head>
-  <body>
-    <h1>Crest View Construction LLC</h1>
-    <div class="muted" style="text-align:center;">Septic System Estimate</div>
+    <html>
+    <head>
+      <title>Proposal</title>
+      <style>
+        body { font-family: Arial; padding: 40px; }
+        h1 { text-align: center; margin:0; }
+        h2 { margin-top:20px; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; }
+        td,th { border:1px solid #ddd; padding:10px; }
+        .right { text-align:right; }
+        .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
+      </style>
+    </head>
+    <body>
 
-    <div class="box">
-      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
-      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
-      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
-      <b>System Type:</b> ${r.mode === 'chamber' ? 'Chamber Septic' : 'Conventional Septic'}
-    </div>
+      <h1>Crest View Construction LLC</h1>
+      <p><strong>Customer:</strong> ${escapeHtml(r.customer || "Customer")}<br>
+      <strong>Job #:</strong> ${escapeHtml(r.job || "—")}<br>
+      <strong>Location:</strong> ${escapeHtml(r.location || "Job Site")}</p>
 
-    <h2>Materials</h2>
-    <table>
-      <tr><th>Description</th><th class="right">Amount</th></tr>
-      <tr><td>Tank</td><td class="right">${money(r.materialsBreakdown.tank)}</td></tr>
-      <tr><td>Pipe</td><td class="right">${money(r.materialsBreakdown.pipeTotal)}</td></tr>
-      <tr><td>Rock</td><td class="right">${money(r.materialsBreakdown.rockTotal)}</td></tr>
-      <tr><td>Hauling</td><td class="right">${money(r.materialsBreakdown.haulTotal)}</td></tr>
-      <tr><td>Tree Clearing</td><td class="right">${money(r.materialsBreakdown.treeTotal)}</td></tr>
-      <tr><td><b>Materials Subtotal</b></td><td class="right"><b>${money(materialsTotal)}</b></td></tr>
-    </table>
+      <h2>Materials</h2>
+      <table>
+        <tr><th>Description</th><th class="right">Amount</th></tr>
+        <tr><td>Tank</td><td class="right">${money(r.materialsBreakdown.tank)}</td></tr>
+        <tr><td>Pipe</td><td class="right">${money(r.materialsBreakdown.pipeTotal)}</td></tr>
+        <tr><td>Rock</td><td class="right">${money(r.materialsBreakdown.rockTotal)}</td></tr>
+        <tr><td>Hauling</td><td class="right">${money(r.materialsBreakdown.haulTotal)}</td></tr>
+        <tr><td>Tree Clearing</td><td class="right">${money(r.materialsBreakdown.treeTotal)}</td></tr>
+        <tr><td><strong>Materials Subtotal</strong></td><td class="right"><strong>${money(materialsTotal)}</strong></td></tr>
+      </table>
 
-    <h2>Labor / Site Work / Mobilization</h2>
-    <table>
-      <tr><th>Description</th><th class="right">Amount</th></tr>
-      <tr><td>Labor / Site Work / Mobilization</td><td class="right">${money(r.laborSite)}</td></tr>
-    </table>
+      <h2>Labor / Site Work / Mobilization</h2>
+      <table>
+        <tr><th>Description</th><th class="right">Amount</th></tr>
+        <tr><td>Labor / Site Work / Mobilization</td><td class="right">${money(r.laborSite)}</td></tr>
+      </table>
 
-    <h2>Project Total</h2>
-    <div class="box total">
-      Total Price: ${money(r.total)}
-    </div>
+      <h2>Total Project Price: ${money(r.total)}</h2>
+      <p><strong>Deposit to Schedule:</strong> ${money(deposit)}</p>
+      <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
 
-    <div class="box">
-      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
-      <b>Payment Terms:</b> ${paymentTerms}
-    </div>
+      <p><strong>Acceptance of Proposal:</strong></p>
+      <div class="line"></div>
+      <p>Customer Signature</p>
 
-    <div class="box">
-      <b>Scope:</b> Septic system installation including excavation, materials, labor, equipment, and site restoration per approved plans and local requirements.
-    </div>
+      <div class="line"></div>
+      <p>Date</p>
 
-    <div class="sigline"></div>
-    <div>Customer Signature</div>
-
-    <div class="sigline"></div>
-    <div>Date</div>
-
-    <script>window.print();</script>
-  </body>
-  </html>
+    </body>
+    </html>
   `);
   win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 250);
 }
 
-/* -----------------------------
-   Pad Calculator
------------------------------- */
+/* Pad calculator */
 function calcPad(){
   const len = n('p_len');
   const wid = n('p_wid');
@@ -701,9 +661,7 @@ function calcPad(){
   };
 }
 
-/* -----------------------------
-   Pad Quote
------------------------------- */
+/* ✅ FIXED: no <script>window.print()</script> inside the quote HTML */
 function printPadQuote(){
   const r = calcPad();
   const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
@@ -713,80 +671,64 @@ function printPadQuote(){
 
   const win = window.open('', '_blank');
   win.document.write(`
-  <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Customer Quote</title>
-    <style>
-      body{font-family:Arial; padding:32px; color:#111;}
-      h1{margin:0 0 6px; text-align:center;}
-      h2{margin:18px 0 8px;}
-      .muted{color:#555;}
-      table{width:100%; border-collapse:collapse; margin-top:10px;}
-      td,th{border:1px solid #ddd; padding:10px; text-align:left;}
-      .right{text-align:right;}
-      .total{font-size:20px; font-weight:900;}
-      .box{border:1px solid #ddd; padding:12px; margin-top:14px;}
-      .sigline{border-top:1px solid #111; width:280px; margin-top:40px;}
-    </style>
-  </head>
-  <body>
-    <h1>Crest View Construction LLC</h1>
-    <div class="muted" style="text-align:center;">Building Pad Estimate</div>
+    <html>
+    <head>
+      <title>Proposal</title>
+      <style>
+        body { font-family: Arial; padding: 40px; }
+        h1 { text-align: center; margin:0; }
+        h2 { margin-top:20px; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; }
+        td,th { border:1px solid #ddd; padding:10px; }
+        .right { text-align:right; }
+        .line { border-top: 1px solid #000; width: 300px; margin-top: 40px; }
+      </style>
+    </head>
+    <body>
 
-    <div class="box">
-      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
-      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
-      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
-      <b>Estimated Fill Volume:</b> ${r.cubicYards.toFixed(2)} yd³
-    </div>
+      <h1>Crest View Construction LLC</h1>
+      <p><strong>Customer:</strong> ${escapeHtml(r.customer || "Customer")}<br>
+      <strong>Job #:</strong> ${escapeHtml(r.job || "—")}<br>
+      <strong>Location:</strong> ${escapeHtml(r.location || "Job Site")}</p>
 
-    <h2>Materials</h2>
-    <table>
-      <tr><th>Description</th><th class="right">Amount</th></tr>
-      <tr><td>Fill Material</td><td class="right">${money(r.breakdown.fillTotal)}</td></tr>
-      <tr><td><b>Materials Subtotal</b></td><td class="right"><b>${money(r.materials)}</b></td></tr>
-    </table>
+      <h2>Pad Details</h2>
+      <p><strong>Estimated Fill:</strong> ${r.cubicYards.toFixed(2)} yd³</p>
 
-    <h2>Labor / Equipment / Mobilization</h2>
-    <table>
-      <tr><th>Description</th><th class="right">Amount</th></tr>
-      <tr><td>Equipment</td><td class="right">${money(r.breakdown.equipTotal)}</td></tr>
-      <tr><td>Labor / Site Work</td><td class="right">${money(r.breakdown.labor)}</td></tr>
-      <tr><td><b>Labor Subtotal</b></td><td class="right"><b>${money(r.laborSite)}</b></td></tr>
-    </table>
+      <h2>Materials</h2>
+      <table>
+        <tr><th>Description</th><th class="right">Amount</th></tr>
+        <tr><td>Fill Material</td><td class="right">${money(r.breakdown.fillTotal)}</td></tr>
+        <tr><td><strong>Materials Subtotal</strong></td><td class="right"><strong>${money(r.materials)}</strong></td></tr>
+      </table>
 
-    <h2>Project Total</h2>
-    <div class="box total">
-      Total Price: ${money(r.total)}
-    </div>
+      <h2>Labor / Equipment / Mobilization</h2>
+      <table>
+        <tr><th>Description</th><th class="right">Amount</th></tr>
+        <tr><td>Equipment</td><td class="right">${money(r.breakdown.equipTotal)}</td></tr>
+        <tr><td>Labor / Site Work</td><td class="right">${money(r.breakdown.labor)}</td></tr>
+        <tr><td><strong>Labor Subtotal</strong></td><td class="right"><strong>${money(r.laborSite)}</strong></td></tr>
+      </table>
 
-    <div class="box">
-      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
-      <b>Payment Terms:</b> ${paymentTerms}
-    </div>
+      <h2>Total Project Price: ${money(r.total)}</h2>
+      <p><strong>Deposit to Schedule:</strong> ${money(deposit)}</p>
+      <p><strong>Payment Terms:</strong> ${paymentTerms}</p>
 
-    <div class="box">
-      <b>Scope:</b> Building pad construction including grading, placement of fill material as needed, equipment operation, and final shaping/leveling suitable for building/foundation preparation.
-    </div>
+      <p><strong>Acceptance of Proposal:</strong></p>
+      <div class="line"></div>
+      <p>Customer Signature</p>
 
-    <div class="sigline"></div>
-    <div>Customer Signature</div>
+      <div class="line"></div>
+      <p>Date</p>
 
-    <div class="sigline"></div>
-    <div>Date</div>
-
-    <script>window.print();</script>
-  </body>
-  </html>
+    </body>
+    </html>
   `);
   win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 250);
 }
 
-/* -----------------------------
-   Offline Save / Load
------------------------------- */
+/* Offline Save / Load */
 const JOBS_KEY = 'cv_jobs_v1';
 
 function getJobs(){
@@ -862,19 +804,10 @@ function loadJob(id){
   const { type, data } = found.payload;
 
   if(type === 'septic'){
-    septicMode = data.mode || 'conventional';
-    openSeptic(septicMode);
-
+    openSeptic(data.mode || 'conventional');
     document.getElementById('s_customer').value = data.customer || '';
     document.getElementById('s_job').value = data.job || '';
     document.getElementById('s_location').value = data.location || '';
-
-    const bd = data.materialsBreakdown || {};
-    document.getElementById('s_tank').value = bd.tank ?? '';
-    // We can’t perfectly reverse pipeTotal into pipe/ft without original inputs,
-    // so we reload only the fields that were saved at the time (we saved computed).
-    // If you want full input reload, we’ll store all raw inputs next iteration.
-    // For now we keep your inputs as-is and just recalc after you verify.
     alert('Loaded job ✅ (Please verify inputs, then Calculate)');
   } else {
     openPad();
@@ -885,16 +818,12 @@ function loadJob(id){
   }
 }
 
-/* -----------------------------
-   Utilities
------------------------------- */
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[m]));
 }
 function cryptoRandomId(){
-  // Works in modern mobile browsers
   if(window.crypto && crypto.getRandomValues){
     const a = new Uint32Array(3);
     crypto.getRandomValues(a);
@@ -903,7 +832,6 @@ function cryptoRandomId(){
   return 'id_' + Math.random().toString(16).slice(2);
 }
 
-/* default */
 goHome();
 </script>
 
