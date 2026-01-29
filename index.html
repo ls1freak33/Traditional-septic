@@ -1,224 +1,910 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Construction Estimator</title>
 
 <style>
-body {
-    margin: 0;
-    background: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
-}
+  :root{
+    --bg:#000;
+    --panel:#0b0b0b;
+    --panel2:#050505;
+    --yellow:#facc15;
+    --white:#fff;
+    --company:#38bdf8;
+    --green:#22c55e;
+    --blue:#2563eb;
+    --danger:#dc2626;
+    --muted:#bdbdbd;
+  }
 
-.nav {
-    display: flex;
-    gap: 8px;
-    padding: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
+  *{ box-sizing:border-box; }
 
-.nav button {
-    background: #facc15;
-    color: #000;
-    border: none;
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--white);
+    font-family:Arial, sans-serif;
+  }
 
-.container {
-    max-width: 650px;
-    margin: auto;
-    padding: 15px;
-    border: 2px solid #facc15;
-    border-radius: 14px;
-    background: #050505;
-}
+  /* Top nav */
+  .nav{
+    display:flex;
+    gap:10px;
+    padding:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    border-bottom:2px solid var(--yellow);
+    background:#000;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .nav button{
+    background:var(--yellow);
+    color:#000;
+    border:none;
+    padding:12px 16px;
+    border-radius:10px;
+    font-weight:800;
+    cursor:pointer;
+    min-width:120px;
+  }
 
-h1 {
-    text-align: center;
-    color: #facc15;
-}
+  .container{
+    max-width:760px;
+    margin:0 auto;
+    padding:14px;
+  }
 
-.company {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #3b82f6;
-    margin-bottom: 18px;
-}
+  .card{
+    border:2px solid var(--yellow);
+    border-radius:14px;
+    background:var(--panel2);
+    padding:14px;
+  }
 
-.section {
-    border: 1px solid #facc15;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 16px;
-    background: #0b0b0b;
-}
+  h1{
+    text-align:center;
+    color:var(--yellow);
+    font-size:34px;
+    margin:8px 0 6px;
+    letter-spacing:0.5px;
+  }
 
-.section-title {
-    color: #facc15;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
+  .company{
+    text-align:center;
+    color:var(--company);
+    font-weight:800;
+    font-size:18px;
+    margin-bottom:14px;
+  }
 
-input, select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    background: #000;
-    border: 1px solid #facc15;
-    border-radius: 6px;
-    color: #fff;
-}
+  .section{
+    border:1px solid var(--yellow);
+    border-radius:12px;
+    padding:12px;
+    margin:12px 0;
+    background:var(--panel);
+  }
+  .section-title{
+    color:var(--yellow);
+    font-weight:900;
+    font-size:18px;
+    margin-bottom:10px;
+  }
 
-button.calc {
-    width: 100%;
-    padding: 14px;
-    background: #22c55e;
-    color: #000;
-    font-weight: bold;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  @media (max-width:640px){
+    .grid2{ grid-template-columns:1fr; }
+    h1{ font-size:30px; }
+    .nav button{ flex:1 1 45%; }
+  }
 
-.total {
-    text-align: center;
-    font-size: 26px;
-    color: #facc15;
-    font-weight: bold;
-    margin-top: 10px;
-}
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin:2px 0 6px;
+    font-weight:700;
+  }
 
-.note {
-    font-size: 13px;
-    text-align: center;
-    color: #9ca3af;
-}
+  input, select, textarea{
+    width:100%;
+    padding:11px;
+    margin-bottom:10px;
+    background:#000;
+    border:1px solid var(--yellow);
+    border-radius:10px;
+    color:var(--white);
+    font-size:16px;
+    outline:none;
+  }
 
-.page { display: none; }
-.page.active { display: block; }
+  .btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    font-weight:900;
+    font-size:16px;
+    cursor:pointer;
+    margin-top:10px;
+  }
+  .btn-yellow{ background:var(--yellow); color:#000; }
+  .btn-green{ background:var(--green); color:#000; }
+  .btn-blue{ background:var(--blue); color:#fff; }
+  .btn-danger{ background:var(--danger); color:#fff; }
+
+  .total{
+    text-align:center;
+    font-size:30px;
+    font-weight:1000;
+    color:var(--yellow);
+    margin-top:12px;
+  }
+
+  .subnote{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:-6px;
+    margin-bottom:10px;
+  }
+
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  .pill{
+    display:inline-block;
+    padding:6px 10px;
+    border:1px solid var(--yellow);
+    border-radius:999px;
+    color:var(--yellow);
+    font-weight:900;
+    font-size:12px;
+  }
+
+  .jobList{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .jobItem{
+    border:1px solid #444;
+    border-radius:12px;
+    padding:10px;
+    background:#070707;
+  }
+  .jobItem b{ color:var(--yellow); }
+  .jobItem .row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:8px;
+  }
+  .jobItem .row button{
+    flex:1 1 120px;
+    padding:10px;
+    border-radius:10px;
+    border:none;
+    font-weight:900;
+    cursor:pointer;
+  }
+
+  .photoPreview{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .photoPreview img{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:10px;
+    border:1px solid var(--yellow);
+  }
 </style>
 </head>
 
 <body>
 
 <div class="nav">
-    <button onclick="showPage('home')">Home</button>
-    <button onclick="showPage('clearing')">Land Clearing</button>
+  <button onclick="goHome()">Home</button>
+  <button onclick="openSeptic('conventional')">Conventional Septic</button>
+  <button onclick="openSeptic('chamber')">Chamber Septic</button>
+  <button onclick="openPad()">Pad Work</button>
 </div>
 
 <div class="container">
+  <div class="card">
 
-<!-- HOME -->
-<div id="home" class="page active">
-    <h1>Construction Estimator</h1>
-    <div class="company">Crest View Construction LLC</div>
-</div>
+    <!-- HOME -->
+    <div id="page_home" class="page active">
+      <h1>Construction Estimator</h1>
+      <div class="company">Crest View Construction LLC</div>
 
-<!-- LAND CLEARING -->
-<div id="clearing" class="page">
-    <h1>Land Clearing</h1>
-    <div class="company">Crest View Construction LLC</div>
+      <div class="section">
+        <div class="section-title">Start</div>
+        <p style="margin:0; line-height:1.4;">
+          Use the buttons at the top to switch between estimators.
+          Save jobs offline so you can pull them up later even with no service.
+        </p>
+      </div>
 
-    <!-- CLEARING TYPE -->
-    <div class="section">
-        <div class="section-title">Clearing Type</div>
-        <select id="woodsType">
-            <option value="0.75">Light Brush</option>
-            <option value="1.25" selected>Medium Woods</option>
-            <option value="2.0">Heavy Woods</option>
-        </select>
-        <input id="acres" type="number" step="0.1" placeholder="Acres to Clear">
+      <div class="section">
+        <div class="section-title">Saved Jobs</div>
+        <button class="btn btn-blue" onclick="openJobs()">View / Load Saved Jobs</button>
+      </div>
     </div>
 
-    <!-- CREW & FINISH -->
-    <div class="section">
-        <div class="section-title">Crew & Finish</div>
-        <select id="operators">
-            <option value="1" selected>1 Operator</option>
-            <option value="2">2 Operators</option>
-        </select>
-        <select id="finish">
-            <option value="1.0" selected>Pile Only</option>
-            <option value="1.1">Burn on Site</option>
-            <option value="1.3">Haul Off</option>
-        </select>
+    <!-- JOBS -->
+    <div id="page_jobs" class="page">
+      <h1>Saved Jobs</h1>
+      <div class="company">Crest View Construction LLC</div>
+
+      <div class="section">
+        <div class="section-title">Jobs Stored Offline</div>
+        <div class="subnote">Stored in this phone/browser (localStorage). Photos are preview-only for now.</div>
+        <div id="jobsList" class="jobList"></div>
+        <button class="btn btn-yellow" onclick="goHome()">Back</button>
+      </div>
     </div>
 
-    <!-- MOBILIZATION -->
-    <div class="section">
-        <div class="section-title">Mobilization</div>
-        <input id="miles" type="number" placeholder="One-way Miles">
-        <select id="equipment">
-            <option value="1">One Machine</option>
-            <option value="2" selected>Both Machines</option>
+    <!-- SEPTIC -->
+    <div id="page_septic" class="page">
+      <h1 id="septicTitle">Septic Estimator</h1>
+      <div class="company">Crest View Construction LLC</div>
+      <div style="text-align:center; margin-bottom:10px;">
+        <span class="pill" id="septicModePill">MODE</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Job Info</div>
+        <div class="grid2">
+          <div>
+            <label>Customer Name</label>
+            <input id="s_customer" placeholder="Customer Name" />
+          </div>
+          <div>
+            <label>Job #</label>
+            <input id="s_job" placeholder="Job #" />
+          </div>
+        </div>
+        <label>Job Location</label>
+        <input id="s_location" placeholder="Job Location" />
+      </div>
+
+      <div class="section">
+        <div class="section-title">Site Photos (preview only)</div>
+        <input id="s_photos" type="file" accept="image/*" multiple />
+        <div class="subnote">Photos preview on screen; not saved offline yet.</div>
+        <div id="s_photoPreview" class="photoPreview"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">System Details</div>
+        <div class="grid2">
+          <div>
+            <label>Tank Cost ($)</label>
+            <input id="s_tank" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Field Line Length (ft)</label>
+            <input id="s_fieldFt" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label>Pipe $ / ft</label>
+            <input id="s_pipePerFt" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Markup %</label>
+            <input id="s_markup" type="number" inputmode="decimal" placeholder="20" value="20" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Rock (Hauled In)</div>
+        <div class="subnote">Rock is priced by tons (default $17/ton). Chamber mode removes rock automatically.</div>
+        <div class="grid2">
+          <div>
+            <label>Rock Tons</label>
+            <input id="s_rockTons" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Cost per Ton ($)</label>
+            <input id="s_rockPerTon" type="number" inputmode="decimal" value="17" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Hauling</div>
+        <div class="subnote">Haul cost is in cents per mile (ex: 35 = $0.35/mi). Distance is one-way.</div>
+        <div class="grid2">
+          <div>
+            <label>Haul Distance (miles one way)</label>
+            <input id="s_haulMiles" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Haul Cost (cents per mile)</label>
+            <input id="s_haulCents" type="number" inputmode="decimal" value="35" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Tree Clearing (if needed)</div>
+        <div class="grid2">
+          <div>
+            <label>Tree Count</label>
+            <input id="s_treeCount" type="number" inputmode="numeric" placeholder="0" />
+          </div>
+          <div>
+            <label>Tree Size</label>
+            <select id="s_treeSize">
+              <option value="0">None</option>
+              <option value="500">Small (up to 6")</option>
+              <option value="1000">Medium (6–12")</option>
+              <option value="1500">Large (12"+)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Crew / Labor / Site Work</div>
+        <div class="subnote">Chamber mode automatically reduces labor 15%.</div>
+        <label>Crew Size</label>
+        <select id="s_crew">
+          <option value="1">1 Man / 1 Machine</option>
+          <option value="1.3">2 Men / 2 Machines</option>
         </select>
+
+        <label>Labor / Site Work / Mobilization Base ($)</label>
+        <input id="s_laborBase" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+
+      <button class="btn btn-yellow" onclick="calcSeptic()">CALCULATE TOTAL</button>
+      <button class="btn btn-green" onclick="printSepticQuote()">GENERATE CUSTOMER QUOTE</button>
+      <button class="btn btn-blue" onclick="saveCurrentJob('septic')">SAVE JOB OFFLINE</button>
+
+      <div class="total" id="s_total">$0.00</div>
+      <div class="subnote" style="text-align:center;margin-top:8px;">
+        Minimum job price enforced: <b>$9,000</b>
+      </div>
     </div>
 
-    <button class="calc" onclick="calculateClearing()">CALCULATE</button>
+    <!-- PAD -->
+    <div id="page_pad" class="page">
+      <h1>Pad Work Estimator</h1>
+      <div class="company">Crest View Construction LLC</div>
 
-    <div class="total" id="clearingTotal">$0.00</div>
-    <div class="note" id="details"></div>
-</div>
+      <div class="section">
+        <div class="section-title">Job Info</div>
+        <div class="grid2">
+          <div>
+            <label>Customer Name</label>
+            <input id="p_customer" placeholder="Customer Name" />
+          </div>
+          <div>
+            <label>Job #</label>
+            <input id="p_job" placeholder="Job #" />
+          </div>
+        </div>
+        <label>Job Location</label>
+        <input id="p_location" placeholder="Job Location" />
+      </div>
 
+      <div class="section">
+        <div class="section-title">Pad Dimensions</div>
+        <div class="grid2">
+          <div>
+            <label>Length (ft)</label>
+            <input id="p_len" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Width (ft)</label>
+            <input id="p_wid" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+        </div>
+        <label>Average Depth (inches)</label>
+        <input id="p_depthIn" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+
+      <div class="section">
+        <div class="section-title">Fill / Equipment / Labor</div>
+
+        <div class="grid2">
+          <div>
+            <label>Fill Cost ($ per cubic yard)</label>
+            <input id="p_fillPerYd" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Markup %</label>
+            <input id="p_markup" type="number" inputmode="decimal" value="20" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label>Equipment Hours</label>
+            <input id="p_equipHours" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Equipment Rate ($/hr)</label>
+            <input id="p_equipRate" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+        </div>
+
+        <label>Labor / Site Work Base ($)</label>
+        <input id="p_labor" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+
+      <button class="btn btn-yellow" onclick="calcPad()">CALCULATE PAD TOTAL</button>
+      <button class="btn btn-green" onclick="printPadQuote()">GENERATE CUSTOMER QUOTE</button>
+      <button class="btn btn-blue" onclick="saveCurrentJob('pad')">SAVE JOB OFFLINE</button>
+
+      <div class="total" id="p_total">$0.00</div>
+      <div class="subnote" style="text-align:center;margin-top:8px;">
+        Pad volume uses: (L × W × depth(ft)) ÷ 27
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-function showPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+/* -----------------------------
+   Navigation
+------------------------------ */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){ showPage('page_home'); }
+function openJobs(){ renderJobs(); showPage('page_jobs'); }
+
+let septicMode = 'conventional';
+function openSeptic(mode){
+  septicMode = mode;
+  document.getElementById('septicModePill').textContent =
+    mode === 'chamber' ? 'CHAMBER (labor -15%, no rock)' : 'CONVENTIONAL';
+  document.getElementById('septicTitle').textContent =
+    mode === 'chamber' ? 'Chamber Septic Estimator' : 'Conventional Septic Estimator';
+  showPage('page_septic');
+}
+function openPad(){ showPage('page_pad'); }
+
+/* -----------------------------
+   Helpers
+------------------------------ */
+function n(id){
+  return parseFloat(document.getElementById(id).value) || 0;
+}
+function money(x){
+  return '$' + (Math.round(x * 100) / 100).toFixed(2);
 }
 
-function val(id) {
-    return parseFloat(document.getElementById(id).value) || 0;
+/* -----------------------------
+   Septic Photo Preview (not saved)
+------------------------------ */
+document.getElementById('s_photos').addEventListener('change', (e)=>{
+  const wrap = document.getElementById('s_photoPreview');
+  wrap.innerHTML = '';
+  const files = Array.from(e.target.files || []);
+  files.slice(0, 12).forEach(file=>{
+    const img = document.createElement('img');
+    img.alt = 'photo';
+    img.src = URL.createObjectURL(file);
+    wrap.appendChild(img);
+  });
+});
+
+/* -----------------------------
+   Septic Calculator
+------------------------------ */
+function calcSeptic(){
+  const tank = n('s_tank');
+  const fieldFt = n('s_fieldFt');
+  const pipePerFt = n('s_pipePerFt');
+  const pipeTotal = fieldFt * pipePerFt;
+
+  const rockTons = n('s_rockTons');
+  const rockPerTon = n('s_rockPerTon');
+  let rockTotal = rockTons * rockPerTon;
+
+  const haulMilesOneWay = n('s_haulMiles');
+  const haulCentsPerMile = n('s_haulCents');
+  const haulTotal = (haulMilesOneWay * 2) * (haulCentsPerMile / 100);
+
+  const trees = n('s_treeCount');
+  const treeRate = n('s_treeSize');
+  const treeTotal = trees * treeRate;
+
+  const crewMult = n('s_crew');
+  let laborBase = n('s_laborBase') * crewMult;
+
+  const markupPct = n('s_markup');
+
+  // Chamber adjustments (your choice A)
+  if(septicMode === 'chamber'){
+    rockTotal = 0;
+    laborBase = laborBase * 0.85; // 15% reduction
+  }
+
+  let materials = tank + pipeTotal + rockTotal + haulTotal + treeTotal;
+  let laborSite = laborBase;
+
+  let subtotal = materials + laborSite;
+  let total = subtotal + (subtotal * (markupPct / 100));
+
+  // Minimum job price
+  if(total < 9000) total = 9000;
+
+  document.getElementById('s_total').textContent = money(total);
+
+  return {
+    mode: septicMode,
+    customer: document.getElementById('s_customer').value || '',
+    job: document.getElementById('s_job').value || '',
+    location: document.getElementById('s_location').value || '',
+    materialsBreakdown: {
+      tank, pipeTotal, rockTotal, haulTotal, treeTotal
+    },
+    laborSite,
+    markupPct,
+    total
+  };
 }
 
-function calculateClearing() {
-    const acres = val("acres");
-    const baseDaysPerAcre = val("woodsType");
-    const operators = val("operators");
-    const finishMultiplier = val("finish");
-    const miles = val("miles");
-    const machines = val("equipment");
+/* -----------------------------
+   Septic Quote
+------------------------------ */
+function printSepticQuote(){
+  const r = calcSeptic();
+  const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
+  const paymentTerms = r.total >= 10000
+    ? "Progress payments required as work progresses."
+    : "Payment due upon completion.";
 
-    const DAILY_RATE = 4750;
-    const DAILY_MIN = 4500;
-    const HAUL_RATE = 7;
+  const materialsTotal =
+    r.materialsBreakdown.tank +
+    r.materialsBreakdown.pipeTotal +
+    r.materialsBreakdown.rockTotal +
+    r.materialsBreakdown.haulTotal +
+    r.materialsBreakdown.treeTotal;
 
-    // Operator productivity factor
-    const operatorFactor = operators === 2 ? 0.75 : 1.0;
+  const win = window.open('', '_blank');
+  win.document.write(`
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Quote</title>
+    <style>
+      body{font-family:Arial; padding:32px; color:#111;}
+      h1{margin:0 0 6px; text-align:center;}
+      h2{margin:18px 0 8px;}
+      .muted{color:#555;}
+      table{width:100%; border-collapse:collapse; margin-top:10px;}
+      td,th{border:1px solid #ddd; padding:10px; text-align:left;}
+      .right{text-align:right;}
+      .total{font-size:20px; font-weight:900;}
+      .box{border:1px solid #ddd; padding:12px; margin-top:14px;}
+      .sigline{border-top:1px solid #111; width:280px; margin-top:40px;}
+    </style>
+  </head>
+  <body>
+    <h1>Crest View Construction LLC</h1>
+    <div class="muted" style="text-align:center;">Septic System Estimate</div>
 
-    let days = acres * baseDaysPerAcre * operatorFactor;
-    let clearingCost = days * DAILY_RATE;
+    <div class="box">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>System Type:</b> ${r.mode === 'chamber' ? 'Chamber Septic' : 'Conventional Septic'}
+    </div>
 
-    if (clearingCost < DAILY_MIN && acres > 0) {
-        clearingCost = DAILY_MIN;
-    }
+    <h2>Materials</h2>
+    <table>
+      <tr><th>Description</th><th class="right">Amount</th></tr>
+      <tr><td>Tank</td><td class="right">${money(r.materialsBreakdown.tank)}</td></tr>
+      <tr><td>Pipe</td><td class="right">${money(r.materialsBreakdown.pipeTotal)}</td></tr>
+      <tr><td>Rock</td><td class="right">${money(r.materialsBreakdown.rockTotal)}</td></tr>
+      <tr><td>Hauling</td><td class="right">${money(r.materialsBreakdown.haulTotal)}</td></tr>
+      <tr><td>Tree Clearing</td><td class="right">${money(r.materialsBreakdown.treeTotal)}</td></tr>
+      <tr><td><b>Materials Subtotal</b></td><td class="right"><b>${money(materialsTotal)}</b></td></tr>
+    </table>
 
-    clearingCost *= finishMultiplier;
+    <h2>Labor / Site Work / Mobilization</h2>
+    <table>
+      <tr><th>Description</th><th class="right">Amount</th></tr>
+      <tr><td>Labor / Site Work / Mobilization</td><td class="right">${money(r.laborSite)}</td></tr>
+    </table>
 
-    let mobilization = miles * HAUL_RATE * machines * 2;
-    let total = clearingCost + mobilization;
+    <h2>Project Total</h2>
+    <div class="box total">
+      Total Price: ${money(r.total)}
+    </div>
 
-    let perAcre = acres > 0 ? total / acres : 0;
+    <div class="box">
+      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
+      <b>Payment Terms:</b> ${paymentTerms}
+    </div>
 
-    document.getElementById("clearingTotal").innerText =
-        "$" + total.toFixed(2);
+    <div class="box">
+      <b>Scope:</b> Septic system installation including excavation, materials, labor, equipment, and site restoration per approved plans and local requirements.
+    </div>
 
-    document.getElementById("details").innerHTML =
-        `Estimated Days: ${days.toFixed(2)}<br>
-         Approx. $${perAcre.toFixed(0)} per acre<br>
-         ${operators} operator(s) • ${machines} machine(s)<br>
-         Mobilization at $7/mile per machine`;
+    <div class="sigline"></div>
+    <div>Customer Signature</div>
+
+    <div class="sigline"></div>
+    <div>Date</div>
+
+    <script>window.print();</script>
+  </body>
+  </html>
+  `);
+  win.document.close();
 }
+
+/* -----------------------------
+   Pad Calculator
+------------------------------ */
+function calcPad(){
+  const len = n('p_len');
+  const wid = n('p_wid');
+  const depthIn = n('p_depthIn');
+  const depthFt = depthIn / 12;
+
+  const cubicYards = (len * wid * depthFt) / 27;
+
+  const fillPerYd = n('p_fillPerYd');
+  const fillTotal = cubicYards * fillPerYd;
+
+  const equipHours = n('p_equipHours');
+  const equipRate = n('p_equipRate');
+  const equipTotal = equipHours * equipRate;
+
+  const labor = n('p_labor');
+  const markupPct = n('p_markup');
+
+  const materials = fillTotal;
+  const laborSite = equipTotal + labor;
+
+  let subtotal = materials + laborSite;
+  let total = subtotal + (subtotal * (markupPct/100));
+
+  document.getElementById('p_total').textContent = money(total);
+
+  return {
+    customer: document.getElementById('p_customer').value || '',
+    job: document.getElementById('p_job').value || '',
+    location: document.getElementById('p_location').value || '',
+    cubicYards,
+    materials,
+    laborSite,
+    markupPct,
+    total,
+    breakdown: { fillTotal, equipTotal, labor }
+  };
+}
+
+/* -----------------------------
+   Pad Quote
+------------------------------ */
+function printPadQuote(){
+  const r = calcPad();
+  const deposit = r.total >= 10000 ? r.total * 0.15 : 0;
+  const paymentTerms = r.total >= 10000
+    ? "Progress payments required as work progresses."
+    : "Payment due upon completion.";
+
+  const win = window.open('', '_blank');
+  win.document.write(`
+  <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Quote</title>
+    <style>
+      body{font-family:Arial; padding:32px; color:#111;}
+      h1{margin:0 0 6px; text-align:center;}
+      h2{margin:18px 0 8px;}
+      .muted{color:#555;}
+      table{width:100%; border-collapse:collapse; margin-top:10px;}
+      td,th{border:1px solid #ddd; padding:10px; text-align:left;}
+      .right{text-align:right;}
+      .total{font-size:20px; font-weight:900;}
+      .box{border:1px solid #ddd; padding:12px; margin-top:14px;}
+      .sigline{border-top:1px solid #111; width:280px; margin-top:40px;}
+    </style>
+  </head>
+  <body>
+    <h1>Crest View Construction LLC</h1>
+    <div class="muted" style="text-align:center;">Building Pad Estimate</div>
+
+    <div class="box">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>Estimated Fill Volume:</b> ${r.cubicYards.toFixed(2)} yd³
+    </div>
+
+    <h2>Materials</h2>
+    <table>
+      <tr><th>Description</th><th class="right">Amount</th></tr>
+      <tr><td>Fill Material</td><td class="right">${money(r.breakdown.fillTotal)}</td></tr>
+      <tr><td><b>Materials Subtotal</b></td><td class="right"><b>${money(r.materials)}</b></td></tr>
+    </table>
+
+    <h2>Labor / Equipment / Mobilization</h2>
+    <table>
+      <tr><th>Description</th><th class="right">Amount</th></tr>
+      <tr><td>Equipment</td><td class="right">${money(r.breakdown.equipTotal)}</td></tr>
+      <tr><td>Labor / Site Work</td><td class="right">${money(r.breakdown.labor)}</td></tr>
+      <tr><td><b>Labor Subtotal</b></td><td class="right"><b>${money(r.laborSite)}</b></td></tr>
+    </table>
+
+    <h2>Project Total</h2>
+    <div class="box total">
+      Total Price: ${money(r.total)}
+    </div>
+
+    <div class="box">
+      <b>Deposit to Schedule:</b> ${money(deposit)}<br>
+      <b>Payment Terms:</b> ${paymentTerms}
+    </div>
+
+    <div class="box">
+      <b>Scope:</b> Building pad construction including grading, placement of fill material as needed, equipment operation, and final shaping/leveling suitable for building/foundation preparation.
+    </div>
+
+    <div class="sigline"></div>
+    <div>Customer Signature</div>
+
+    <div class="sigline"></div>
+    <div>Date</div>
+
+    <script>window.print();</script>
+  </body>
+  </html>
+  `);
+  win.document.close();
+}
+
+/* -----------------------------
+   Offline Save / Load
+------------------------------ */
+const JOBS_KEY = 'cv_jobs_v1';
+
+function getJobs(){
+  try { return JSON.parse(localStorage.getItem(JOBS_KEY) || '[]'); }
+  catch { return []; }
+}
+function setJobs(jobs){
+  localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+}
+
+function saveCurrentJob(type){
+  const now = new Date();
+  const stamp = now.toISOString();
+
+  let payload;
+  if(type === 'septic'){
+    payload = { type:'septic', data: calcSeptic() };
+  } else {
+    payload = { type:'pad', data: calcPad() };
+  }
+
+  const name = (payload.data.customer || '').trim();
+  const jobNo = (payload.data.job || '').trim();
+  const label = `${type.toUpperCase()} • ${name || 'No Name'} • ${jobNo || 'No Job#'} • ${now.toLocaleString()}`;
+
+  const jobs = getJobs();
+  jobs.unshift({
+    id: cryptoRandomId(),
+    label,
+    createdAt: stamp,
+    payload
+  });
+  setJobs(jobs);
+  alert('Saved offline ✅');
+}
+
+function renderJobs(){
+  const wrap = document.getElementById('jobsList');
+  const jobs = getJobs();
+  wrap.innerHTML = '';
+
+  if(!jobs.length){
+    wrap.innerHTML = '<div class="subnote">No saved jobs yet.</div>';
+    return;
+  }
+
+  jobs.forEach(j=>{
+    const div = document.createElement('div');
+    div.className = 'jobItem';
+    div.innerHTML = `
+      <b>${escapeHtml(j.label)}</b>
+      <div class="subnote">Saved: ${new Date(j.createdAt).toLocaleString()}</div>
+      <div class="row">
+        <button class="btn-blue" onclick="loadJob('${j.id}')">Load</button>
+        <button class="btn-danger" onclick="deleteJob('${j.id}')">Delete</button>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function deleteJob(id){
+  const jobs = getJobs().filter(j=>j.id !== id);
+  setJobs(jobs);
+  renderJobs();
+}
+
+function loadJob(id){
+  const jobs = getJobs();
+  const found = jobs.find(j=>j.id === id);
+  if(!found){ alert('Job not found'); return; }
+
+  const { type, data } = found.payload;
+
+  if(type === 'septic'){
+    septicMode = data.mode || 'conventional';
+    openSeptic(septicMode);
+
+    document.getElementById('s_customer').value = data.customer || '';
+    document.getElementById('s_job').value = data.job || '';
+    document.getElementById('s_location').value = data.location || '';
+
+    const bd = data.materialsBreakdown || {};
+    document.getElementById('s_tank').value = bd.tank ?? '';
+    // We can’t perfectly reverse pipeTotal into pipe/ft without original inputs,
+    // so we reload only the fields that were saved at the time (we saved computed).
+    // If you want full input reload, we’ll store all raw inputs next iteration.
+    // For now we keep your inputs as-is and just recalc after you verify.
+    alert('Loaded job ✅ (Please verify inputs, then Calculate)');
+  } else {
+    openPad();
+    document.getElementById('p_customer').value = data.customer || '';
+    document.getElementById('p_job').value = data.job || '';
+    document.getElementById('p_location').value = data.location || '';
+    alert('Loaded job ✅ (Please verify inputs, then Calculate)');
+  }
+}
+
+/* -----------------------------
+   Utilities
+------------------------------ */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
+function cryptoRandomId(){
+  // Works in modern mobile browsers
+  if(window.crypto && crypto.getRandomValues){
+    const a = new Uint32Array(3);
+    crypto.getRandomValues(a);
+    return Array.from(a).map(x=>x.toString(16)).join('');
+  }
+  return 'id_' + Math.random().toString(16).slice(2);
+}
+
+/* default */
+goHome();
 </script>
 
 </body>
