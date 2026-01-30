@@ -1056,8 +1056,8 @@ function setClearPreset(which){
   // You can change these preset numbers anytime
   const presets = {
     light: 2000,
-    medium: 3000,
-    heavy: 4000
+    medium: 3200,
+    heavy: 4500
   };
   const val = presets[which] ?? 0;
   document.getElementById('c_perAcre').value = val;
@@ -1163,48 +1163,65 @@ function showClearQuote(){
   const materialsTotal = r.acreTotal + r.treeTotal + r.brush + r.haulTotal;
 
   const html = `
-    <h1 class="qTitle">Crest View Construction LLC</h1>
-    <div class="qMuted">Land Clearing Estimate</div>
+  <h1 class="qTitle" style="color:#0ea5e9;">Crest View Construction LLC</h1>
+  <div class="qMuted">Land Clearing Estimate</div>
 
-    <div class="qBox">
-      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
-      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
-      <b>Location:</b> ${escapeHtml(r.location || '—')}
-    </div>
+  <div class="qBox">
+    <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+    <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+    <b>Location:</b> ${escapeHtml(r.location || '—')}
+  </div>
 
-    <h2>Materials / Site Costs</h2>
-    <table class="qTable">
-      <tr><th>Description</th><th class="qRight">Amount</th></tr>
-      <tr>
-        <td>Acreage Clearing (${r.acres || 0} ac @ ${money(r.perAcre)}/ac)</td>
-        <td class="qRight">${money(r.acreTotal)}</td>
-      </tr>
-      <tr><td>Tree Clearing (${r.trees || 0} @ ${money(r.treeRate)}/tree)</td><td class="qRight">${money(r.treeTotal)}</td></tr>
-      <tr><td>Brush / Light Clearing</td><td class="qRight">${money(r.brush)}</td></tr>
-      <tr><td>Hauling / Mobilization</td><td class="qRight">${money(r.haulTotal)}</td></tr>
-      <tr><td><b>Materials Subtotal</b></td><td class="qRight"><b>${money(materialsTotal)}</b></td></tr>
-    </table>
+  <h2>Site Costs</h2>
+  <table class="qTable">
+    <tr><th>Description</th><th class="qRight">Amount</th></tr>
 
-    <h2>Labor / Site Work</h2>
-    <table class="qTable">
-      <tr><th>Description</th><th class="qRight">Amount</th></tr>
-      <tr><td>Labor / Site Work / Mobilization</td><td class="qRight">${money(r.laborSite)}</td></tr>
-    </table>
+    <tr>
+      <td>Acreage Clearing (${r.acres || 0} ac @ ${money(r.perAcre)}/ac)</td>
+      <td class="qRight">${money(r.acreTotal)}</td>
+    </tr>
 
-    <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+    <tr>
+      <td>Brush / Light Clearing</td>
+      <td class="qRight">${money(r.brush)}</td>
+    </tr>
 
-    <div class="qBox">
-      <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
-      <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
-    </div>
+    <tr>
+      <td>Haul Off</td>
+      <td class="qRight">${money(r.haul)}</td>
+    </tr>
 
-    <div class="qBox">
-      <b>Scope:</b> Land clearing including acreage clearing as specified, removal of trees/brush as needed, equipment operation, and basic site cleanup/restoration as agreed.
-    </div>
+    <tr>
+      <td><b>Site Costs Subtotal</b></td>
+      <td class="qRight">
+        <b>${money(r.acreTotal + r.brush + r.haul)}</b>
+      </td>
+    </tr>
+  </table>
 
-    <div class="sigline"></div><div>Customer Signature</div>
-    <div class="sigline"></div><div>Date</div>
-  `;
+  <h2>Labor / Site Work</h2>
+  <table class="qTable">
+    <tr><th>Description</th><th class="qRight">Amount</th></tr>
+    <tr>
+      <td>Labor / Site Work</td>
+      <td class="qRight">${money(r.laborSite)}</td>
+    </tr>
+  </table>
+
+  <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+
+  <div class="qBox">
+    <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
+    <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
+  </div>
+
+  <div class="qBox">
+    <b>Scope:</b> Site clearing including acreage clearing and brush/light clearing, with optional haul off as selected. Final pricing subject to site access and actual field conditions.
+  </div>
+
+  <div class="sigline"></div><div>Customer Signature</div>
+  <div class="sigline"></div><div>Date</div>
+`;
 
   const copyText =
 `Crest View Construction LLC — QUOTE
