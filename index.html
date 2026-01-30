@@ -192,7 +192,7 @@
     cursor:pointer;
   }
 
-  /* QUOTE MODAL */
+  /* MODAL (Quote / Verbal) */
   .modal{
     display:none;
     position:fixed;
@@ -219,15 +219,8 @@
     align-items:center;
     margin-bottom:12px;
   }
-  .modalTop h2{
-    margin:0;
-    font-size:18px;
-  }
-  .modalBtns{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-  }
+  .modalTop h2{ margin:0; font-size:18px; }
+  .modalBtns{ display:flex; gap:10px; flex-wrap:wrap; }
   .modalBtns button{
     border:none;
     border-radius:10px;
@@ -249,7 +242,7 @@
   .qTotal{ font-size:20px; font-weight:900; }
   .sigline{ border-top:1px solid #111; width:280px; margin-top:40px; }
 
-  /* VERBAL styling */
+  /* Verbal styling */
   .vCard{
     border:1px solid #ddd;
     border-radius:12px;
@@ -275,7 +268,7 @@
   }
   .vSmall b{ color:#000; }
 
-  /* PRINT ONLY QUOTE */
+  /* PRINT ONLY MODAL CONTENT */
   @media print{
     body{ background:#fff; }
     .nav, .container{ display:none !important; }
@@ -304,6 +297,7 @@
   <button onclick="openSeptic('conventional')">Conventional Septic</button>
   <button onclick="openSeptic('chamber')">Chamber Septic</button>
   <button onclick="openPad()">Pad Work</button>
+  <button onclick="openClear()">Land Clearing</button>
 </div>
 
 <div class="container">
@@ -536,10 +530,92 @@
       <div class="total" id="p_total">$0.00</div>
     </div>
 
+    <!-- LAND CLEARING -->
+    <div id="page_clear" class="page">
+      <h1>Land Clearing Estimator</h1>
+      <div class="company">Crest View Construction LLC</div>
+
+      <div class="section">
+        <div class="section-title">Job Info</div>
+        <div class="grid2">
+          <div>
+            <label>Customer Name</label>
+            <input id="c_customer" placeholder="Customer Name" />
+          </div>
+          <div>
+            <label>Job #</label>
+            <input id="c_job" placeholder="Job #" />
+          </div>
+        </div>
+        <label>Job Location</label>
+        <input id="c_location" placeholder="Job Location" />
+      </div>
+
+      <div class="section">
+        <div class="section-title">Tree Clearing</div>
+        <div class="subnote">Uses the same tree pricing we’ve been using: Small/Medium/Large per tree.</div>
+        <div class="grid2">
+          <div>
+            <label>Tree Count</label>
+            <input id="c_treeCount" type="number" inputmode="numeric" placeholder="0" />
+          </div>
+          <div>
+            <label>Tree Size</label>
+            <select id="c_treeSize">
+              <option value="0">None</option>
+              <option value="500">Small (up to 6")</option>
+              <option value="1000">Medium (6–12")</option>
+              <option value="1500">Large (12"+)</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Brush / Light Clearing (optional $)</label>
+        <input id="c_brush" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+
+      <div class="section">
+        <div class="section-title">Hauling / Mobilization (optional)</div>
+        <div class="subnote">Cents per mile × round trip. Use for debris hauling, equipment moving, etc.</div>
+        <div class="grid2">
+          <div>
+            <label>Haul Distance (miles one way)</label>
+            <input id="c_haulMiles" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Haul Cost (cents per mile)</label>
+            <input id="c_haulCents" type="number" inputmode="decimal" value="35" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Crew / Labor / Site Work</div>
+        <label>Crew Size</label>
+        <select id="c_crew">
+          <option value="1">1 Man / 1 Machine</option>
+          <option value="1.3">2 Men / 2 Machines</option>
+        </select>
+
+        <label>Labor / Site Work / Mobilization Base ($)</label>
+        <input id="c_laborBase" type="number" inputmode="decimal" placeholder="0" />
+
+        <label>Markup %</label>
+        <input id="c_markup" type="number" inputmode="decimal" value="20" />
+      </div>
+
+      <button class="btn btn-yellow" onclick="calcClear()">CALCULATE TOTAL</button>
+      <button class="btn btn-blue" onclick="showClearVerbal()">VERBAL QUOTE (COPY)</button>
+      <button class="btn btn-green" onclick="showClearQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
+      <button class="btn btn-blue" onclick="saveCurrentJob('clear')">SAVE JOB OFFLINE</button>
+
+      <div class="total" id="c_total">$0.00</div>
+    </div>
+
   </div>
 </div>
 
-<!-- QUOTE / VERBAL MODAL -->
+<!-- MODAL -->
 <div id="quoteModal" class="modal" aria-hidden="true">
   <div class="modalCard">
     <div class="modalTop">
@@ -558,7 +634,8 @@
 /* Navigation */
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
 }
 function goHome(){ showPage('page_home'); }
 function openJobs(){ renderJobs(); showPage('page_jobs'); }
@@ -573,6 +650,7 @@ function openSeptic(mode){
   showPage('page_septic');
 }
 function openPad(){ showPage('page_pad'); }
+function openClear(){ showPage('page_clear'); }
 
 /* Helpers */
 function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
@@ -597,7 +675,6 @@ function openQuote(title, html, copyText){
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('quoteContent').innerHTML = html;
   lastCopyText = copyText || "";
-
   const m = document.getElementById('quoteModal');
   m.classList.add('open');
   m.setAttribute('aria-hidden', 'false');
@@ -616,7 +693,6 @@ async function copyModalText(){
     await navigator.clipboard.writeText(text);
     alert("Copied ✅");
   }catch(e){
-    // fallback
     const ta = document.createElement('textarea');
     ta.value = text;
     document.body.appendChild(ta);
@@ -627,21 +703,15 @@ async function copyModalText(){
   }
 }
 
-/* Common terms */
+/* Payment rules */
 function depositAndTerms(total){
   if(total >= 10000){
-    return {
-      deposit: total * 0.15,
-      terms: "Progress payments required as work progresses."
-    };
+    return { deposit: total * 0.15, terms: "Progress payments required as work progresses." };
   }
-  return {
-    deposit: 0,
-    terms: "Payment due upon completion."
-  };
+  return { deposit: 0, terms: "Payment due upon completion." };
 }
 
-/* SEPTIC calculator */
+/* ------------------ SEPTIC ------------------ */
 function calcSeptic(){
   const tank = n('s_tank');
   const fieldFt = n('s_fieldFt');
@@ -691,7 +761,6 @@ function calcSeptic(){
   };
 }
 
-/* SEPTIC verbal */
 function showSepticVerbal(){
   const r = calcSeptic();
   const dt = depositAndTerms(r.total);
@@ -710,17 +779,14 @@ function showSepticVerbal(){
     <div class="vCard">
       <p class="vBig">TOTAL: ${money(r.total)}</p>
       <p class="vLine">${sys}${minNote}</p>
-
       <div class="vSmall">
         <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
         <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
         <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
-
         <b>Quick breakdown:</b><br>
         Materials: ${money(materialsTotal)}<br>
         Labor / Site / Mobilization: ${money(r.laborSite)}<br>
         Markup: ${r.markupPct.toFixed(0)}%<br><br>
-
         <b>Deposit:</b> ${money(dt.deposit)}<br>
         <b>Terms:</b> ${escapeHtml(dt.terms)}
       </div>
@@ -745,7 +811,6 @@ Terms: ${dt.terms}`;
   openQuote("Verbal Quote (Copy/Share)", html, copyText);
 }
 
-/* SEPTIC full quote */
 function showSepticQuote(){
   const r = calcSeptic();
   const dt = depositAndTerms(r.total);
@@ -812,7 +877,7 @@ Terms: ${dt.terms}`;
   openQuote("Customer Quote (Print/Share)", html, copyText);
 }
 
-/* PAD calculator */
+/* ------------------ PAD ------------------ */
 function calcPad(){
   const len = n('p_len');
   const wid = n('p_wid');
@@ -849,7 +914,6 @@ function calcPad(){
   };
 }
 
-/* PAD verbal */
 function showPadVerbal(){
   const r = calcPad();
   const dt = depositAndTerms(r.total);
@@ -858,19 +922,16 @@ function showPadVerbal(){
     <div class="vCard">
       <p class="vBig">TOTAL: ${money(r.total)}</p>
       <p class="vLine">Building Pad Work</p>
-
       <div class="vSmall">
         <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
         <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
         <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
-
         <b>Quick breakdown:</b><br>
         Fill volume: ${r.cubicYards.toFixed(2)} yd³<br>
         Fill: ${money(r.fillTotal)}<br>
         Equipment: ${money(r.equipTotal)}<br>
         Labor / Site Work: ${money(r.labor)}<br>
         Markup: ${r.markupPct.toFixed(0)}%<br><br>
-
         <b>Deposit:</b> ${money(dt.deposit)}<br>
         <b>Terms:</b> ${escapeHtml(dt.terms)}
       </div>
@@ -897,7 +958,6 @@ Terms: ${dt.terms}`;
   openQuote("Verbal Quote (Copy/Share)", html, copyText);
 }
 
-/* PAD full quote */
 function showPadQuote(){
   const r = calcPad();
   const dt = depositAndTerms(r.total);
@@ -947,7 +1007,152 @@ Terms: ${dt.terms}`;
   openQuote("Customer Quote (Print/Share)", html, copyText);
 }
 
-/* Offline Save / Load */
+/* ------------------ LAND CLEARING ------------------ */
+function calcClear(){
+  const trees = n('c_treeCount');
+  const treeRate = n('c_treeSize');
+  const treeTotal = trees * treeRate;
+
+  const brush = n('c_brush');
+
+  const haulMilesOneWay = n('c_haulMiles');
+  const haulCentsPerMile = n('c_haulCents');
+  const haulTotal = (haulMilesOneWay * 2) * (haulCentsPerMile / 100);
+
+  const crewMult = n('c_crew');
+  const laborBase = n('c_laborBase') * crewMult;
+
+  const markupPct = n('c_markup');
+
+  const materials = treeTotal + brush + haulTotal;
+  const laborSite = laborBase;
+
+  let subtotal = materials + laborSite;
+  let total = subtotal + (subtotal * (markupPct / 100));
+
+  document.getElementById('c_total').textContent = money(total);
+
+  return {
+    customer: document.getElementById('c_customer').value || '',
+    job: document.getElementById('c_job').value || '',
+    location: document.getElementById('c_location').value || '',
+    trees, treeRate, treeTotal,
+    brush,
+    haulTotal,
+    laborSite,
+    markupPct,
+    total
+  };
+}
+
+function showClearVerbal(){
+  const r = calcClear();
+  const dt = depositAndTerms(r.total);
+
+  const materialsTotal = r.treeTotal + r.brush + r.haulTotal;
+
+  const html = `
+    <div class="vCard">
+      <p class="vBig">TOTAL: ${money(r.total)}</p>
+      <p class="vLine">Land Clearing</p>
+      <div class="vSmall">
+        <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
+        <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
+        <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
+
+        <b>Quick breakdown:</b><br>
+        Trees: ${money(r.treeTotal)}<br>
+        Brush/Light Clearing: ${money(r.brush)}<br>
+        Hauling/Mobilization: ${money(r.haulTotal)}<br>
+        Materials Subtotal: ${money(materialsTotal)}<br>
+        Labor / Site Work: ${money(r.laborSite)}<br>
+        Markup: ${r.markupPct.toFixed(0)}%<br><br>
+
+        <b>Deposit:</b> ${money(dt.deposit)}<br>
+        <b>Terms:</b> ${escapeHtml(dt.terms)}
+      </div>
+    </div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — VERBAL ESTIMATE
+Land Clearing
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+TOTAL: ${money(r.total)}
+
+Quick breakdown:
+- Trees: ${money(r.treeTotal)}
+- Brush/Light Clearing: ${money(r.brush)}
+- Hauling/Mobilization: ${money(r.haulTotal)}
+- Labor/Site: ${money(r.laborSite)}
+- Markup: ${r.markupPct.toFixed(0)}%
+
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Verbal Quote (Copy/Share)", html, copyText);
+}
+
+function showClearQuote(){
+  const r = calcClear();
+  const dt = depositAndTerms(r.total);
+
+  const materialsTotal = r.treeTotal + r.brush + r.haulTotal;
+
+  const html = `
+    <h1 class="qTitle">Crest View Construction LLC</h1>
+    <div class="qMuted">Land Clearing Estimate</div>
+
+    <div class="qBox">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}
+    </div>
+
+    <h2>Materials / Site Costs</h2>
+    <table class="qTable">
+      <tr><th>Description</th><th class="qRight">Amount</th></tr>
+      <tr><td>Tree Clearing (${r.trees || 0} @ ${money(r.treeRate)}/tree)</td><td class="qRight">${money(r.treeTotal)}</td></tr>
+      <tr><td>Brush / Light Clearing</td><td class="qRight">${money(r.brush)}</td></tr>
+      <tr><td>Hauling / Mobilization</td><td class="qRight">${money(r.haulTotal)}</td></tr>
+      <tr><td><b>Subtotal</b></td><td class="qRight"><b>${money(materialsTotal)}</b></td></tr>
+    </table>
+
+    <h2>Labor / Site Work</h2>
+    <table class="qTable">
+      <tr><th>Description</th><th class="qRight">Amount</th></tr>
+      <tr><td>Labor / Site Work / Mobilization</td><td class="qRight">${money(r.laborSite)}</td></tr>
+    </table>
+
+    <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+
+    <div class="qBox">
+      <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
+      <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
+    </div>
+
+    <div class="qBox">
+      <b>Scope:</b> Land clearing including removal of trees/brush as specified, equipment operation, and basic site cleanup/restoration as agreed.
+    </div>
+
+    <div class="sigline"></div><div>Customer Signature</div>
+    <div class="sigline"></div><div>Date</div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — QUOTE
+Land Clearing
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+Total: ${money(r.total)}
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Customer Quote (Print/Share)", html, copyText);
+}
+
+/* ------------------ OFFLINE SAVE / LOAD ------------------ */
 const JOBS_KEY = 'cv_jobs_v1';
 
 function getJobs(){
@@ -957,13 +1162,15 @@ function getJobs(){
 function setJobs(jobs){
   localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
 }
+
 function saveCurrentJob(type){
   const now = new Date();
   const stamp = now.toISOString();
 
-  const payload = (type === 'septic')
-    ? { type:'septic', data: calcSeptic() }
-    : { type:'pad', data: calcPad() };
+  let payload;
+  if(type === 'septic') payload = { type:'septic', data: calcSeptic() };
+  else if(type === 'pad') payload = { type:'pad', data: calcPad() };
+  else payload = { type:'clear', data: calcClear() };
 
   const name = (payload.data.customer || '').trim();
   const jobNo = (payload.data.job || '').trim();
@@ -1019,15 +1226,22 @@ function loadJob(id){
     document.getElementById('s_job').value = data.job || '';
     document.getElementById('s_location').value = data.location || '';
     alert('Loaded job ✅ (Re-enter estimate inputs if needed, then Calculate)');
-  } else {
+  } else if(type === 'pad'){
     openPad();
     document.getElementById('p_customer').value = data.customer || '';
     document.getElementById('p_job').value = data.job || '';
     document.getElementById('p_location').value = data.location || '';
     alert('Loaded job ✅ (Re-enter estimate inputs if needed, then Calculate)');
+  } else {
+    openClear();
+    document.getElementById('c_customer').value = data.customer || '';
+    document.getElementById('c_job').value = data.job || '';
+    document.getElementById('c_location').value = data.location || '';
+    alert('Loaded job ✅ (Verify inputs, then Calculate)');
   }
 }
 
+/* default */
 goHome();
 </script>
 
