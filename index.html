@@ -1333,6 +1333,10 @@ function applyMulchPreset(onlyIfEmpty){
     acInput.value = target.acPerDay;
   }
 }
+function setMulchDayRate(v){
+  const el = document.getElementById('m_dayRate');
+  if(el) el.value = v;
+}
 
 function calcMulch(){
   const type = document.getElementById('m_type').value || 'light';
