@@ -702,7 +702,8 @@
         <div class="grid2">
           <div>
             <label>Day Rate ($/day) (machine + operator)</label>
-            <input id="m_dayRate" type="number" inputmode="decimal" placeholder="0" />
+            <!-- FIX: default to 2800 -->
+            <input id="m_dayRate" type="number" inputmode="decimal" placeholder="2800" value="2800" />
           </div>
           <div>
             <label>Markup %</label>
@@ -1317,8 +1318,10 @@ function applyMulchPreset(onlyIfEmpty){
 
   if(onlyIfEmpty){
     if(!acInput.value) acInput.value = target.acPerDay;
+
+    // FIX: default day rate to 2800 if empty
     const dayRate = document.getElementById('m_dayRate');
-    if(dayRate && !dayRate.value) dayRate.value = ""; // keep blank by default
+    if(dayRate && !dayRate.value) dayRate.value = 2800;
   }else{
     acInput.value = target.acPerDay;
   }
