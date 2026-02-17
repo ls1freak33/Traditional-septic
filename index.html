@@ -700,11 +700,18 @@
         </div>
 
         <div class="grid2">
-          <div>
-            <label>Day Rate ($/day) (machine + operator)</label>
-            <!-- FIX: default to 2800 -->
-            <input id="m_dayRate" type="number" inputmode="decimal" placeholder="2800" value="2800" />
-          </div>
+        <div>
+  <label>Day Rate ($/day) (machine + operator)</label>
+
+  <!-- Presets -->
+  <div class="presetRow" style="margin-top:6px;">
+    <button type="button" onclick="setMulchDayRate(2800)">RENTING $2800</button>
+    <button type="button" onclick="setMulchDayRate(1882)">NORMAL $1882</button>
+    <button type="button" onclick="setMulchDayRate(1482)">INS. COVERED $1482</button>
+  </div>
+
+  <input id="m_dayRate" type="number" inputmode="decimal" placeholder="2800" value="2800" />
+</div>
           <div>
             <label>Markup %</label>
             <input id="m_markup" type="number" inputmode="decimal" value="20" />
