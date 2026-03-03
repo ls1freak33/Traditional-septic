@@ -751,128 +751,185 @@
     </div>
 
     <!-- BUSH HOG -->
-    <div id="page_bush" class="page">
-      <h1>Brush Hog Estimator</h1>
-      <div class="company">Crest View Construction LLC</div>
+<div id="page_bush" class="page">
+  <h1>Brush Hog Estimator</h1>
+  <div class="company">Crest View Construction LLC</div>
 
-      <div class="section">
-        <div class="section-title">Job Info</div>
-        <div class="grid2">
-          <div>
-            <label>Customer Name</label>
-            <input id="b_customer" placeholder="Customer Name" />
-          </div>
-          <div>
-            <label>Job #</label>
-            <input id="b_job" placeholder="Job #" />
-          </div>
-        </div>
-        <label>Job Location</label>
-        <input id="b_location" placeholder="Job Location" />
+  <div class="section">
+    <div class="section-title">Job Info</div>
+    <div class="grid2">
+      <div>
+        <label>Customer Name</label>
+        <input id="b_customer" placeholder="Customer Name" />
       </div>
-
-      <div class="section">
-        <div class="section-title">Acreage Tier</div>
-        <div class="subnote">
-          Based on your bush-hog pricing: Day rate ~$2,400 • Daily minimum $2,200 • Tiered $/acre.
-        </div>
-
-        <label>Tier (sets default $/acre and acres/day)</label>
-        <select id="b_tier" onchange="applyBushTier(false)">
-          <option value="light">Light (grass/weeds)</option>
-          <option value="medium" selected>Medium (thick weeds/saplings)</option>
-          <option value="heavy">Heavy (brush/saplings/slow going)</option>
-        </select>
-
-        <div class="grid2">
-          <div>
-            <label>Acres</label>
-            <input id="b_acres" type="number" inputmode="decimal" placeholder="0" />
-          </div>
-          <div>
-            <label>$ per Acre (editable)</label>
-            <input id="b_perAcre" type="number" inputmode="decimal" placeholder="0" />
-          </div>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <label>Acres per Day (editable)</label>
-            <input id="b_acPerDay" type="number" inputmode="decimal" placeholder="0" />
-          </div>
-          <div>
-            <label>Markup % (optional internal)</label>
-            <input id="b_markup" type="number" inputmode="decimal" value="0" />
-          </div>
-        </div>
-
-        <div class="subnote">
-          Defaults: Light $300/ac & ~4 ac/day • Medium $425/ac & ~3 ac/day • Heavy $650/ac & ~1.5 ac/day
-        </div>
+      <div>
+        <label>Job #</label>
+        <input id="b_job" placeholder="Job #" />
       </div>
-
-      <div class="section">
-        <div class="section-title">Day Rate / Hours</div>
-        <div class="subnote">Day rate covers ~8 run-hours. Add overtime if hours exceed 8.</div>
-
-        <label>Day Rate Presets</label>
-        <div class="presetRow" style="margin-top:6px;">
-          <button type="button" onclick="setBushDayRate(2200)">MIN $2200</button>
-          <button type="button" onclick="setBushDayRate(2400)">DEFAULT $2400</button>
-          <button type="button" onclick="setBushDayRate(2800)">HEAVY $2800</button>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <label>Day Rate ($/day)</label>
-            <input id="b_dayRate" type="number" inputmode="decimal" value="2400" />
-          </div>
-          <div>
-            <label>Minimum Job ($)</label>
-            <input id="b_minJob" type="number" inputmode="decimal" value="2200" />
-          </div>
-        </div>
-
-        <div class="grid2">
-          <div>
-            <label>Estimated Run Hours (optional)</label>
-            <input id="b_hours" type="number" inputmode="decimal" placeholder="0" />
-          </div>
-          <div>
-            <label>Over 8 Hours Rate ($/hr)</label>
-            <input id="b_over8Rate" type="number" inputmode="decimal" value="275" />
-          </div>
-        </div>
-
-        <label style="display:flex;align-items:center;gap:10px;">
-          <input id="b_billFullDays" type="checkbox" style="width:auto;transform:scale(1.2);margin:0;">
-          Bill full days (round up days)
-        </label>
-        <div class="subnote">Example: 1.2 days → bills as 2 days.</div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Optional Add-ons</div>
-        <div class="grid2">
-          <div>
-            <label>Travel / Mobilization (optional $)</label>
-            <input id="b_travel" type="number" inputmode="decimal" placeholder="0" />
-          </div>
-          <div>
-            <label>Haul Off (optional $)</label>
-            <input id="b_haulOff" type="number" inputmode="decimal" placeholder="0" />
-          </div>
-        </div>
-      </div>
-
-      <button class="btn btn-yellow" onclick="calcBush()">CALCULATE TOTAL</button>
-      <button class="btn btn-blue" onclick="showBushVerbal()">VERBAL QUOTE (COPY)</button>
-      <button class="btn btn-green" onclick="showBushQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
-      <button class="btn btn-blue" onclick="saveCurrentJob('bush')">SAVE JOB OFFLINE</button>
-
-      <div class="total" id="b_total">$0.00</div>
-      <div class="subnote" id="b_note" style="text-align:center;margin-top:8px;"></div>
     </div>
+    <label>Job Location</label>
+    <input id="b_location" placeholder="Job Location" />
+  </div>
+
+  <div class="section">
+    <div class="section-title">Internal Cost Breakdown (NOT shown to customer)</div>
+    <div class="subnote">
+      Put your true daily costs here (rental, fuel, delivery, wear). The app will recommend a day rate and pricing.
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Skid Steer Rental ($/day)</label>
+        <input id="b_costSkid" type="number" inputmode="decimal" placeholder="0" value="0" />
+      </div>
+      <div>
+        <label>Brush Hog Attachment Rental ($/day)</label>
+        <input id="b_costHog" type="number" inputmode="decimal" placeholder="0" value="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Delivery / Pickup / Mobilization ($)</label>
+        <input id="b_costDelivery" type="number" inputmode="decimal" placeholder="0" value="0" />
+      </div>
+      <div>
+        <label>Fuel / Day ($)</label>
+        <input id="b_costFuel" type="number" inputmode="decimal" placeholder="0" value="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Wear / Blades / Repairs ($/day)</label>
+        <input id="b_costWear" type="number" inputmode="decimal" placeholder="0" value="0" />
+      </div>
+      <div>
+        <label>Insurance / Misc ($/day)</label>
+        <input id="b_costMisc" type="number" inputmode="decimal" placeholder="0" value="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Target Profit ($/day)</label>
+        <input id="b_profitDay" type="number" inputmode="decimal" value="800" />
+        <div class="subnote">Example: cost/day 1600 + profit 800 = 2400 day rate.</div>
+      </div>
+      <div>
+        <label>Markup % (optional)</label>
+        <input id="b_markup" type="number" inputmode="decimal" value="0" />
+        <div class="subnote">If you want an extra % on top of everything.</div>
+      </div>
+    </div>
+
+    <button class="btn btn-blue" type="button" onclick="useBushRecommendedDayRate()">
+      USE RECOMMENDED DAY RATE
+    </button>
+
+    <div class="subnote" id="b_internalRec" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Acreage Tier</div>
+    <div class="subnote">
+      Tier sets default $/acre and acres/day. You can edit them.
+      (Customer quote does NOT show your internal day rate / markup math.)
+    </div>
+
+    <label>Tier</label>
+    <select id="b_tier" onchange="applyBushTier(false)">
+      <option value="light">Light (grass/weeds)</option>
+      <option value="medium" selected>Medium (thick weeds/saplings)</option>
+      <option value="heavy">Heavy (brush/saplings/slow going)</option>
+    </select>
+
+    <div class="grid2">
+      <div>
+        <label>Acres</label>
+        <input id="b_acres" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+      <div>
+        <label>$ per Acre (editable)</label>
+        <input id="b_perAcre" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Acres per Day (editable)</label>
+        <input id="b_acPerDay" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+      <div>
+        <label>Daily Minimum (customer-facing) ($)</label>
+        <input id="b_minJob" type="number" inputmode="decimal" value="2200" />
+      </div>
+    </div>
+
+    <div class="subnote">
+      Defaults: Light $300/ac & ~4 ac/day • Medium $425/ac & ~3 ac/day • Heavy $650/ac & ~1.5 ac/day
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Day Rate / Hours</div>
+    <div class="subnote">Day rate covers ~8 run-hours. Add overtime if hours exceed 8.</div>
+
+    <label>Day Rate Presets (customer-facing)</label>
+    <div class="presetRow" style="margin-top:6px;">
+      <button type="button" onclick="setBushDayRate(2200)">MIN $2200</button>
+      <button type="button" onclick="setBushDayRate(2400)">DEFAULT $2400</button>
+      <button type="button" onclick="setBushDayRate(2800)">HEAVY $2800</button>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Day Rate ($/day)</label>
+        <input id="b_dayRate" type="number" inputmode="decimal" value="2400" />
+      </div>
+      <div>
+        <label>Estimated Run Hours (optional)</label>
+        <input id="b_hours" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Over 8 Hours Rate ($/hr)</label>
+        <input id="b_over8Rate" type="number" inputmode="decimal" value="275" />
+      </div>
+      <div>
+        <label style="display:flex;align-items:center;gap:10px;margin-top:22px;">
+          <input id="b_billFullDays" type="checkbox" style="width:auto;transform:scale(1.2);margin:0;">
+          Bill full days (round up)
+        </label>
+      </div>
+    </div>
+    <div class="subnote">Example: 1.2 days → bills as 2 days.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Optional Add-ons</div>
+    <div class="grid2">
+      <div>
+        <label>Travel / Mobilization (optional $)</label>
+        <input id="b_travel" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+      <div>
+        <label>Haul Off (optional $)</label>
+        <input id="b_haulOff" type="number" inputmode="decimal" placeholder="0" />
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-yellow" onclick="calcBush()">CALCULATE TOTAL</button>
+  <button class="btn btn-blue" onclick="showBushVerbal()">VERBAL QUOTE (COPY)</button>
+  <button class="btn btn-green" onclick="showBushQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
+  <button class="btn btn-blue" onclick="saveCurrentJob('bush')">SAVE JOB OFFLINE</button>
+
+  <div class="total" id="b_total">$0.00</div>
+  <div class="subnote" id="b_note" style="text-align:center;margin-top:8px;"></div>
+</div>
 
   </div>
 </div>
