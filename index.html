@@ -316,6 +316,7 @@
   <button onclick="openPad()">Pad Work</button>
   <button onclick="openClear()">Land Clearing</button>
   <button onclick="openMulch()">Mulcher</button>
+  <button onclick="openBush()">Bush Hog</button>
 </div>
 
 <div class="container">
@@ -591,13 +592,14 @@
         </div>
 
         <div class="subnote">
-          Current default presets: Light $2,000/acre • Medium $3,200/acre • Heavy $4,500/acre (edit anytime).
+          Default presets: Light $2,000/acre • Medium $3,200/acre • Heavy $4,500/acre (edit anytime).
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Tree Clearing</div>
-        <div class="subnote">Tree pricing: Small/Medium/Large per tree.</div>
+        <div class="section-title">Tree / Brush Add-ons</div>
+        <div class="subnote">Optional add-ons if a spot is heavy woods or needs extra brush work.</div>
+
         <div class="grid2">
           <div>
             <label>Tree Count</label>
@@ -620,7 +622,7 @@
 
       <div class="section">
         <div class="section-title">Haul off (optional)</div>
-        <div class="subnote">Cents per mile × round trip. Use for debris hauling, equipment moving, etc.</div>
+        <div class="subnote">Cents per mile × round trip.</div>
         <div class="grid2">
           <div>
             <label>Haul Distance (miles one way)</label>
@@ -641,7 +643,7 @@
           <option value="1.3">2 Men / 2 Machines</option>
         </select>
 
-        <label>Labor / Site Work / Mobilization Base ($)</label>
+        <label>Labor / Site Work Base ($)</label>
         <input id="c_laborBase" type="number" inputmode="decimal" placeholder="0" />
 
         <label>Markup %</label>
@@ -679,10 +681,10 @@
 
       <div class="section">
         <div class="section-title">Mulching Type</div>
-        <div class="subnote">Pick density/type — this sets a default acres/day. You can override acres/day.</div>
+        <div class="subnote">Pick density/type — sets default acres/day. You can override acres/day.</div>
 
         <label>Clearing Type</label>
-        <select id="m_type" onchange="applyMulchPreset()">
+        <select id="m_type" onchange="applyMulchPreset(false)">
           <option value="light">Light / Medium (2–4 acres/day)</option>
           <option value="heavy">Heavy / Dense (0.5–1.5 acres/day)</option>
           <option value="extreme">Extreme / Steep / Wet (0.25–0.75 acres/day)</option>
@@ -700,26 +702,22 @@
         </div>
 
         <div class="grid2">
-        <div>
-  <label>Day Rate ($/day) (machine + operator)</label>
-
-  <!-- Presets -->
-  <div class="presetRow" style="margin-top:6px;">
-    <button type="button" onclick="setMulchDayRate(2800)">RENTING $2800</button>
-    <button type="button" onclick="setMulchDayRate(1882)">NORMAL $1882</button>
-    <button type="button" onclick="setMulchDayRate(1482)">INS. COVERED $1482</button>
-  </div>
-
-  <input id="m_dayRate" type="number" inputmode="decimal" placeholder="2800" value="2800" />
-</div>
           <div>
-            <label>Markup %</label>
-            <input id="m_markup" type="number" inputmode="decimal" value="20" />
+            <label>Day Rate ($/day) (machine + operator)</label>
+            <div class="presetRow" style="margin-top:6px;">
+              <button type="button" onclick="setMulchDayRate(2800)">RENTING $2800</button>
+              <button type="button" onclick="setMulchDayRate(1882)">NORMAL $1882</button>
+              <button type="button" onclick="setMulchDayRate(1482)">INS. COVERED $1482</button>
+            </div>
+            <input id="m_dayRate" type="number" inputmode="decimal" placeholder="2800" value="2800" />
+            <div class="subnote">Internal number (not shown on customer quote).</div>
           </div>
-        </div>
 
-        <div class="subnote">
-          Tip: If you want a “ballpark” number fast, set your day rate once and it’ll be consistent across jobs.
+          <div>
+            <label>Markup % (internal)</label>
+            <input id="m_markup" type="number" inputmode="decimal" value="20" />
+            <div class="subnote">Used in total, not shown to customer.</div>
+          </div>
         </div>
       </div>
 
@@ -735,6 +733,12 @@
             <input id="m_travel" type="number" inputmode="decimal" placeholder="0" />
           </div>
         </div>
+
+        <label style="display:flex;align-items:center;gap:10px;">
+          <input id="m_billFullDays" type="checkbox" style="width:auto;transform:scale(1.2);margin:0;">
+          Bill full days (round up to next full day)
+        </label>
+        <div class="subnote">Example: 1.2 days → bills as 2 days (common for rentals).</div>
       </div>
 
       <button class="btn btn-yellow" onclick="calcMulch()">CALCULATE TOTAL</button>
@@ -744,6 +748,130 @@
 
       <div class="total" id="m_total">$0.00</div>
       <div class="subnote" id="m_daysNote" style="text-align:center;margin-top:8px;"></div>
+    </div>
+
+    <!-- BUSH HOG -->
+    <div id="page_bush" class="page">
+      <h1>Brush Hog Estimator</h1>
+      <div class="company">Crest View Construction LLC</div>
+
+      <div class="section">
+        <div class="section-title">Job Info</div>
+        <div class="grid2">
+          <div>
+            <label>Customer Name</label>
+            <input id="b_customer" placeholder="Customer Name" />
+          </div>
+          <div>
+            <label>Job #</label>
+            <input id="b_job" placeholder="Job #" />
+          </div>
+        </div>
+        <label>Job Location</label>
+        <input id="b_location" placeholder="Job Location" />
+      </div>
+
+      <div class="section">
+        <div class="section-title">Acreage Tier</div>
+        <div class="subnote">
+          Based on your bush-hog pricing: Day rate ~$2,400 • Daily minimum $2,200 • Tiered $/acre.
+        </div>
+
+        <label>Tier (sets default $/acre and acres/day)</label>
+        <select id="b_tier" onchange="applyBushTier(false)">
+          <option value="light">Light (grass/weeds)</option>
+          <option value="medium" selected>Medium (thick weeds/saplings)</option>
+          <option value="heavy">Heavy (brush/saplings/slow going)</option>
+        </select>
+
+        <div class="grid2">
+          <div>
+            <label>Acres</label>
+            <input id="b_acres" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>$ per Acre (editable)</label>
+            <input id="b_perAcre" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label>Acres per Day (editable)</label>
+            <input id="b_acPerDay" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Markup % (optional internal)</label>
+            <input id="b_markup" type="number" inputmode="decimal" value="0" />
+          </div>
+        </div>
+
+        <div class="subnote">
+          Defaults: Light $300/ac & ~4 ac/day • Medium $425/ac & ~3 ac/day • Heavy $650/ac & ~1.5 ac/day
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Day Rate / Hours</div>
+        <div class="subnote">Day rate covers ~8 run-hours. Add overtime if hours exceed 8.</div>
+
+        <label>Day Rate Presets</label>
+        <div class="presetRow" style="margin-top:6px;">
+          <button type="button" onclick="setBushDayRate(2200)">MIN $2200</button>
+          <button type="button" onclick="setBushDayRate(2400)">DEFAULT $2400</button>
+          <button type="button" onclick="setBushDayRate(2800)">HEAVY $2800</button>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label>Day Rate ($/day)</label>
+            <input id="b_dayRate" type="number" inputmode="decimal" value="2400" />
+          </div>
+          <div>
+            <label>Minimum Job ($)</label>
+            <input id="b_minJob" type="number" inputmode="decimal" value="2200" />
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <label>Estimated Run Hours (optional)</label>
+            <input id="b_hours" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Over 8 Hours Rate ($/hr)</label>
+            <input id="b_over8Rate" type="number" inputmode="decimal" value="275" />
+          </div>
+        </div>
+
+        <label style="display:flex;align-items:center;gap:10px;">
+          <input id="b_billFullDays" type="checkbox" style="width:auto;transform:scale(1.2);margin:0;">
+          Bill full days (round up days)
+        </label>
+        <div class="subnote">Example: 1.2 days → bills as 2 days.</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Optional Add-ons</div>
+        <div class="grid2">
+          <div>
+            <label>Travel / Mobilization (optional $)</label>
+            <input id="b_travel" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+          <div>
+            <label>Haul Off (optional $)</label>
+            <input id="b_haulOff" type="number" inputmode="decimal" placeholder="0" />
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-yellow" onclick="calcBush()">CALCULATE TOTAL</button>
+      <button class="btn btn-blue" onclick="showBushVerbal()">VERBAL QUOTE (COPY)</button>
+      <button class="btn btn-green" onclick="showBushQuote()">VIEW / PRINT CUSTOMER QUOTE</button>
+      <button class="btn btn-blue" onclick="saveCurrentJob('bush')">SAVE JOB OFFLINE</button>
+
+      <div class="total" id="b_total">$0.00</div>
+      <div class="subnote" id="b_note" style="text-align:center;margin-top:8px;"></div>
     </div>
 
   </div>
@@ -765,7 +893,7 @@
 </div>
 
 <script>
-/* Navigation */
+/* ------------------ NAV ------------------ */
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el = document.getElementById(id);
@@ -786,13 +914,16 @@ function openSeptic(mode){
 function openPad(){ showPage('page_pad'); }
 function openClear(){ showPage('page_clear'); }
 function openMulch(){ applyMulchPreset(true); showPage('page_mulch'); }
+function openBush(){ applyBushTier(true); showPage('page_bush'); }
 
-/* Helpers */
+/* ------------------ HELPERS ------------------ */
 function n(id){
   const el = document.getElementById(id);
   return parseFloat(el ? el.value : 0) || 0;
 }
-function money(x){ return '$' + (Math.round(x * 100) / 100).toFixed(2); }
+function money(x){
+  return '$' + (Math.round(x * 100) / 100).toFixed(2);
+}
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -807,7 +938,7 @@ function cryptoRandomId(){
   return 'id_' + Math.random().toString(16).slice(2);
 }
 
-/* Modal */
+/* ------------------ MODAL ------------------ */
 let lastCopyText = "";
 function openQuote(title, html, copyText){
   document.getElementById('modalTitle').textContent = title;
@@ -841,7 +972,7 @@ async function copyModalText(){
   }
 }
 
-/* Payment rules */
+/* ------------------ PAYMENT RULES ------------------ */
 function depositAndTerms(total){
   if(total >= 10000){
     return { deposit: total * 0.15, terms: "Progress payments required as work progresses." };
@@ -923,8 +1054,7 @@ function showSepticVerbal(){
         <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
         <b>Quick breakdown:</b><br>
         Materials: ${money(materialsTotal)}<br>
-        Labor / Site / Mobilization: ${money(r.laborSite)}<br>
-        Markup: ${r.markupPct.toFixed(0)}%<br><br>
+        Labor / Site / Mobilization: ${money(r.laborSite)}<br><br>
         <b>Deposit:</b> ${money(dt.deposit)}<br>
         <b>Terms:</b> ${escapeHtml(dt.terms)}
       </div>
@@ -937,11 +1067,6 @@ ${sys}${minNote}
 Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
 Location: ${r.location || "—"}
 TOTAL: ${money(r.total)}
-
-Quick breakdown:
-- Materials: ${money(materialsTotal)}
-- Labor/Site/Mobilization: ${money(r.laborSite)}
-- Markup: ${r.markupPct.toFixed(0)}%
 
 Deposit: ${money(dt.deposit)}
 Terms: ${dt.terms}`;
@@ -1064,12 +1189,6 @@ function showPadVerbal(){
         <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
         <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
         <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
-        <b>Quick breakdown:</b><br>
-        Fill volume: ${r.cubicYards.toFixed(2)} yd³<br>
-        Fill: ${money(r.fillTotal)}<br>
-        Equipment: ${money(r.equipTotal)}<br>
-        Labor / Site Work: ${money(r.labor)}<br>
-        Markup: ${r.markupPct.toFixed(0)}%<br><br>
         <b>Deposit:</b> ${money(dt.deposit)}<br>
         <b>Terms:</b> ${escapeHtml(dt.terms)}
       </div>
@@ -1082,13 +1201,6 @@ Building Pad Work
 Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
 Location: ${r.location || "—"}
 TOTAL: ${money(r.total)}
-
-Quick breakdown:
-- Fill volume: ${r.cubicYards.toFixed(2)} yd³
-- Fill: ${money(r.fillTotal)}
-- Equipment: ${money(r.equipTotal)}
-- Labor/Site: ${money(r.labor)}
-- Markup: ${r.markupPct.toFixed(0)}%
 
 Deposit: ${money(dt.deposit)}
 Terms: ${dt.terms}`;
@@ -1202,14 +1314,6 @@ function showClearVerbal(){
         <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
         <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
         <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
-
-        <b>Quick breakdown:</b><br>
-        Acreage (${r.acres || 0} ac @ ${money(r.perAcre)}/ac): ${money(r.acreTotal)}<br>
-        Brush/Light Clearing: ${money(r.brush)}<br>
-        Haul off: ${money(r.haulTotal)}<br>
-        Labor / Site Work: ${money(r.laborSite)}<br>
-        Markup: ${r.markupPct.toFixed(0)}%<br><br>
-
         <b>Deposit:</b> ${money(dt.deposit)}<br>
         <b>Terms:</b> ${escapeHtml(dt.terms)}
       </div>
@@ -1223,13 +1327,6 @@ Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
 Location: ${r.location || "—"}
 TOTAL: ${money(r.total)}
 
-Quick breakdown:
-- Acreage (${r.acres || 0} ac @ ${money(r.perAcre)}/ac): ${money(r.acreTotal)}
-- Brush/Light: ${money(r.brush)}
-- Haul off: ${money(r.haulTotal)}
-- Labor/Site: ${money(r.laborSite)}
-- Markup: ${r.markupPct.toFixed(0)}%
-
 Deposit: ${money(dt.deposit)}
 Terms: ${dt.terms}`;
 
@@ -1240,6 +1337,8 @@ function showClearQuote(){
   const r = calcClear();
   const dt = depositAndTerms(r.total);
 
+  const siteSubtotal = r.acreTotal + r.brush + r.haulTotal;
+
   const html = `
     <h1 class="qTitle" style="color:#0ea5e9;">Crest View Construction LLC</h1>
     <div class="qMuted">Land Clearing Estimate</div>
@@ -1247,28 +1346,17 @@ function showClearQuote(){
     <div class="qBox">
       <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
       <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
-      <b>Location:</b> ${escapeHtml(r.location || '—')}
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>Acres:</b> ${r.acres || 0}
     </div>
 
     <h2>Site Costs</h2>
     <table class="qTable">
       <tr><th>Description</th><th class="qRight">Amount</th></tr>
-      <tr>
-        <td>Acreage Clearing (${r.acres || 0} ac @ ${money(r.perAcre)}/ac)</td>
-        <td class="qRight">${money(r.acreTotal)}</td>
-      </tr>
-      <tr>
-        <td>Brush / Light Clearing</td>
-        <td class="qRight">${money(r.brush)}</td>
-      </tr>
-      <tr>
-        <td>Haul Off</td>
-        <td class="qRight">${money(r.haulTotal)}</td>
-      </tr>
-      <tr>
-        <td><b>Site Costs Subtotal</b></td>
-        <td class="qRight"><b>${money(r.acreTotal + r.brush + r.haulTotal)}</b></td>
-      </tr>
+      <tr><td>Acreage Clearing</td><td class="qRight">${money(r.acreTotal)}</td></tr>
+      <tr><td>Brush / Light Clearing</td><td class="qRight">${money(r.brush)}</td></tr>
+      <tr><td>Haul Off (optional)</td><td class="qRight">${money(r.haulTotal)}</td></tr>
+      <tr><td><b>Site Costs Subtotal</b></td><td class="qRight"><b>${money(siteSubtotal)}</b></td></tr>
     </table>
 
     <h2>Labor / Site Work</h2>
@@ -1305,60 +1393,64 @@ Terms: ${dt.terms}`;
 }
 
 /* ------------------ MULCHER ------------------ */
-function applyMulchPreset(onlyIfEmpty){
-  const type = document.getElementById('m_type')?.value || 'light';
-
-  // Midpoint defaults (editable by you anytime)
-  // Light/Medium: 2–4 ac/day => default 3
-  // Heavy/Dense: 0.5–1.5 ac/day => default 1
-  // Extreme: 0.25–0.75 ac/day => default 0.5
-  const defaults = {
-    light: { acPerDay: 3.0, label: "Light / Medium (2–4 ac/day)" },
-    heavy: { acPerDay: 1.0, label: "Heavy / Dense (0.5–1.5 ac/day)" },
-    extreme:{ acPerDay: 0.5, label: "Extreme (0.25–0.75 ac/day)" }
-  };
-
-  const target = defaults[type] || defaults.light;
-  const acInput = document.getElementById('m_acPerDay');
-
-  if(!acInput) return;
-
-  if(onlyIfEmpty){
-    if(!acInput.value) acInput.value = target.acPerDay;
-
-    // FIX: default day rate to 2800 if empty
-    const dayRate = document.getElementById('m_dayRate');
-    if(dayRate && !dayRate.value) dayRate.value = 2800;
-  }else{
-    acInput.value = target.acPerDay;
-  }
-}
 function setMulchDayRate(v){
   const el = document.getElementById('m_dayRate');
   if(el) el.value = v;
 }
 
+function applyMulchPreset(onlyIfEmpty){
+  const type = document.getElementById('m_type')?.value || 'light';
+
+  const defaults = {
+    light:  { acPerDay: 3.0 },
+    heavy:  { acPerDay: 1.0 },
+    extreme:{ acPerDay: 0.5 }
+  };
+
+  const target = defaults[type] || defaults.light;
+  const acInput = document.getElementById('m_acPerDay');
+  const dayRate = document.getElementById('m_dayRate');
+
+  if(!acInput) return;
+
+  if(onlyIfEmpty){
+    if(!acInput.value) acInput.value = target.acPerDay;
+    if(dayRate && !dayRate.value) dayRate.value = 2800;
+  }else{
+    acInput.value = target.acPerDay;
+  }
+}
+
+function mulchTypeLabel(t){
+  if(t === 'heavy') return 'Heavy / Dense';
+  if(t === 'extreme') return 'Extreme / Steep / Wet';
+  return 'Light / Medium';
+}
+
 function calcMulch(){
   const type = document.getElementById('m_type').value || 'light';
   const acres = n('m_acres');
-  const acPerDay = Math.max(n('m_acPerDay'), 0.0001); // avoid divide by 0
+  const acPerDay = Math.max(n('m_acPerDay'), 0.0001);
   const dayRate = n('m_dayRate');
   const markupPct = n('m_markup');
 
   const travel = n('m_travel');
   const haulOff = n('m_haulOff');
 
-  const days = acres > 0 ? (acres / acPerDay) : 0;
-  const baseWork = days * dayRate;
+  const rawDays = acres > 0 ? (acres / acPerDay) : 0;
 
+  const billFullDays = document.getElementById('m_billFullDays')?.checked;
+  const billedDays = billFullDays ? Math.ceil(rawDays) : rawDays;
+
+  const baseWork = billedDays * dayRate;
   let subtotal = baseWork + travel + haulOff;
   let total = subtotal + (subtotal * (markupPct / 100));
 
   document.getElementById('m_total').textContent = money(total);
 
   const note = (acres > 0 && dayRate > 0)
-    ? `Estimated production: ${acPerDay.toFixed(2)} ac/day • Estimated days: ${days.toFixed(2)}`
-    : `Tip: enter Acres + Acres/day + Day Rate to calculate days & pricing`;
+    ? `Type: ${mulchTypeLabel(type)} • ${acPerDay.toFixed(2)} ac/day • Est days: ${rawDays.toFixed(2)} • Billed days: ${billedDays.toFixed(2)}`
+    : `Tip: enter Acres + Acres/day + Day Rate`;
   document.getElementById('m_daysNote').textContent = note;
 
   return {
@@ -1368,20 +1460,14 @@ function calcMulch(){
     location: document.getElementById('m_location').value || '',
     acres,
     acPerDay,
-    days,
+    rawDays,
+    billedDays,
     dayRate,
-    baseWork,
     travel,
     haulOff,
     markupPct,
     total
   };
-}
-
-function mulchTypeLabel(t){
-  if(t === 'heavy') return 'Heavy / Dense';
-  if(t === 'extreme') return 'Extreme / Steep / Wet';
-  return 'Light / Medium';
 }
 
 function showMulchVerbal(){
@@ -1396,17 +1482,8 @@ function showMulchVerbal(){
         <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
         <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
         <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
-
-        <b>Production:</b> ${r.acPerDay.toFixed(2)} ac/day<br>
         <b>Acres:</b> ${r.acres || 0}<br>
-        <b>Estimated Days:</b> ${r.days.toFixed(2)}<br><br>
-
-        <b>Quick breakdown:</b><br>
-        Mulching Work: ${money(r.baseWork)}<br>
-        Travel/Mobilization: ${money(r.travel)}<br>
-        Haul Off: ${money(r.haulOff)}<br>
-        Markup: ${r.markupPct.toFixed(0)}%<br><br>
-
+        <b>Estimated Days:</b> ${r.rawDays.toFixed(2)} (billed ${r.billedDays.toFixed(2)})<br><br>
         <b>Deposit:</b> ${money(dt.deposit)}<br>
         <b>Terms:</b> ${escapeHtml(dt.terms)}
       </div>
@@ -1418,17 +1495,9 @@ function showMulchVerbal(){
 Skid Steer Mulching — ${mulchTypeLabel(r.type)}
 Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
 Location: ${r.location || "—"}
-TOTAL: ${money(r.total)}
-
-Production: ${r.acPerDay.toFixed(2)} ac/day
 Acres: ${r.acres || 0}
-Estimated days: ${r.days.toFixed(2)}
-
-Breakdown:
-- Mulching work: ${money(r.baseWork)}
-- Travel/Mobilization: ${money(r.travel)}
-- Haul off: ${money(r.haulOff)}
-- Markup: ${r.markupPct.toFixed(0)}%
+Estimated days: ${r.rawDays.toFixed(2)} (billed ${r.billedDays.toFixed(2)})
+TOTAL: ${money(r.total)}
 
 Deposit: ${money(dt.deposit)}
 Terms: ${dt.terms}`;
@@ -1440,6 +1509,7 @@ function showMulchQuote(){
   const r = calcMulch();
   const dt = depositAndTerms(r.total);
 
+  /* Customer quote: do NOT show day rate or markup (per your request) */
   const html = `
     <h1 class="qTitle">Crest View Construction LLC</h1>
     <div class="qMuted">Skid Steer Mulching Estimate</div>
@@ -1450,17 +1520,8 @@ function showMulchQuote(){
       <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
       <b>Clearing Type:</b> ${escapeHtml(mulchTypeLabel(r.type))}<br>
       <b>Acres:</b> ${r.acres || 0}<br>
-      <b>Estimated Production:</b> ${r.acPerDay.toFixed(2)} ac/day<br>
-      <b>Estimated Days:</b> ${r.days.toFixed(2)}
+      <b>Estimated Duration:</b> ${r.rawDays.toFixed(2)} day(s)
     </div>
-
-    <h2>Site Costs</h2>
-    <table class="qTable">
-      <tr><th>Description</th><th class="qRight">Amount</th></tr>
-      <tr><td>Mulching Work (${r.days.toFixed(2)} days @ ${money(r.dayRate)}/day)</td><td class="qRight">${money(r.baseWork)}</td></tr>
-      <tr><td>Travel / Mobilization</td><td class="qRight">${money(r.travel)}</td></tr>
-      <tr><td>Haul Off</td><td class="qRight">${money(r.haulOff)}</td></tr>
-    </table>
 
     <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
 
@@ -1483,8 +1544,190 @@ Skid Steer Mulching — ${mulchTypeLabel(r.type)}
 Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
 Location: ${r.location || "—"}
 Acres: ${r.acres || 0}
-Production: ${r.acPerDay.toFixed(2)} ac/day
-Estimated days: ${r.days.toFixed(2)}
+Estimated duration: ${r.rawDays.toFixed(2)} day(s)
+Total: ${money(r.total)}
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Customer Quote (Print/Share)", html, copyText);
+}
+
+/* ------------------ BUSH HOG ------------------ */
+function setBushDayRate(v){
+  const el = document.getElementById('b_dayRate');
+  if(el) el.value = v;
+}
+
+/* From bush-hog pricing chat:
+   Day $2,400 baseline; min $2,200; tiers:
+   Light $250–$350/ac -> default 300
+   Medium $350–$500/ac -> default 425
+   Heavy $500–$900/ac -> default 650
+*/
+function applyBushTier(onlyIfEmpty){
+  const tier = document.getElementById('b_tier')?.value || 'medium';
+  const presets = {
+    light:  { perAcre: 300, acPerDay: 4.0 },
+    medium: { perAcre: 425, acPerDay: 3.0 },
+    heavy:  { perAcre: 650, acPerDay: 1.5 }
+  };
+  const p = presets[tier] || presets.medium;
+
+  const perAcreEl = document.getElementById('b_perAcre');
+  const acPerDayEl = document.getElementById('b_acPerDay');
+  if(!perAcreEl || !acPerDayEl) return;
+
+  if(onlyIfEmpty){
+    if(!perAcreEl.value) perAcreEl.value = p.perAcre;
+    if(!acPerDayEl.value) acPerDayEl.value = p.acPerDay;
+  }else{
+    perAcreEl.value = p.perAcre;
+    acPerDayEl.value = p.acPerDay;
+  }
+}
+
+function calcBush(){
+  const tier = document.getElementById('b_tier')?.value || 'medium';
+
+  const acres = n('b_acres');
+  const perAcre = n('b_perAcre');
+  const acPerDay = Math.max(n('b_acPerDay'), 0.0001);
+
+  const dayRate = n('b_dayRate');      // default 2400
+  const minJob  = n('b_minJob');       // default 2200
+
+  const hours   = n('b_hours');        // optional
+  const over8Rate = n('b_over8Rate');  // default 275/hr
+
+  const travel  = n('b_travel');
+  const haulOff = n('b_haulOff');
+
+  const markupPct = n('b_markup'); // optional internal
+
+  const perAcreTotal = acres * perAcre;
+
+  const rawDays = acres > 0 ? (acres / acPerDay) : 0;
+  const billFullDays = document.getElementById('b_billFullDays')?.checked;
+  const billedDays = billFullDays ? Math.ceil(rawDays) : rawDays;
+
+  const dayBasedTotal = billedDays * dayRate;
+
+  const overtimeHours = Math.max(hours - 8, 0);
+  const overtimeTotal = overtimeHours * over8Rate;
+
+  // Protect your quote: use the max of (per-acre, day-based, minimum) then add extras
+  let base = Math.max(perAcreTotal, dayBasedTotal, minJob);
+  base = base + travel + haulOff + overtimeTotal;
+
+  const total = base + (base * (markupPct / 100));
+
+  document.getElementById('b_total').textContent = money(total);
+
+  const noteParts = [];
+  if(acres > 0) noteParts.push(`Est days: ${rawDays.toFixed(2)} (billed ${billedDays.toFixed(2)})`);
+  if(hours > 0) noteParts.push(`Run hrs: ${hours.toFixed(1)} (${overtimeHours.toFixed(1)} OT)`);
+  document.getElementById('b_note').textContent = `Tier: ${tier.toUpperCase()} • ` + (noteParts.join(' • ') || 'Enter acres for estimate');
+
+  return {
+    tier,
+    customer: document.getElementById('b_customer').value || '',
+    job: document.getElementById('b_job').value || '',
+    location: document.getElementById('b_location').value || '',
+    acres,
+    perAcre,
+    perAcreTotal,
+    acPerDay,
+    rawDays,
+    billedDays,
+    dayRate,
+    minJob,
+    hours,
+    overtimeHours,
+    overtimeTotal,
+    travel,
+    haulOff,
+    markupPct,
+    total
+  };
+}
+
+function showBushVerbal(){
+  const r = calcBush();
+  const dt = depositAndTerms(r.total);
+
+  const html = `
+    <div class="vCard">
+      <p class="vBig">TOTAL: ${money(r.total)}</p>
+      <p class="vLine">Bush Hog (Skid + 72") — ${escapeHtml(r.tier.toUpperCase())}</p>
+      <div class="vSmall">
+        <b>Customer:</b> ${escapeHtml(r.customer || "—")} &nbsp; | &nbsp;
+        <b>Job #:</b> ${escapeHtml(r.job || "—")}<br>
+        <b>Location:</b> ${escapeHtml(r.location || "—")}<br><br>
+        <b>Acres:</b> ${r.acres || 0}<br>
+        <b>Estimated Duration:</b> ${r.rawDays.toFixed(2)} day(s) (billed ${r.billedDays.toFixed(2)})<br><br>
+        <b>Deposit:</b> ${money(dt.deposit)}<br>
+        <b>Terms:</b> ${escapeHtml(dt.terms)}
+      </div>
+    </div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — VERBAL ESTIMATE
+Bush Hog (Skid + 72") — ${r.tier.toUpperCase()}
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+Acres: ${r.acres || 0}
+Estimated duration: ${r.rawDays.toFixed(2)} day(s) (billed ${r.billedDays.toFixed(2)})
+TOTAL: ${money(r.total)}
+
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Verbal Quote (Copy/Share)", html, copyText);
+}
+
+function showBushQuote(){
+  const r = calcBush();
+  const dt = depositAndTerms(r.total);
+
+  /* Customer quote: do NOT show per-acre/day-rate/markup internals */
+  const html = `
+    <h1 class="qTitle">Crest View Construction LLC</h1>
+    <div class="qMuted">Bush Hog Estimate (Skid + 72")</div>
+
+    <div class="qBox">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>Service:</b> Bush Hog / Vegetation Management<br>
+      <b>Tier:</b> ${escapeHtml(r.tier.toUpperCase())}<br>
+      <b>Acres:</b> ${r.acres || 0}<br>
+      <b>Estimated Duration:</b> ${r.rawDays.toFixed(2)} day(s)
+    </div>
+
+    <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+
+    <div class="qBox">
+      <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
+      <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
+    </div>
+
+    <div class="qBox">
+      <b>Scope:</b> Bush hogging / vegetation maintenance using skid steer with 72" cutter. Final pricing subject to site access, terrain, hidden debris, and actual vegetation density.
+    </div>
+
+    <div class="sigline"></div><div>Customer Signature</div>
+    <div class="sigline"></div><div>Date</div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — QUOTE
+Bush Hog (Skid + 72")
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+Tier: ${r.tier.toUpperCase()}
+Acres: ${r.acres || 0}
+Estimated duration: ${r.rawDays.toFixed(2)} day(s)
 Total: ${money(r.total)}
 Deposit: ${money(dt.deposit)}
 Terms: ${dt.terms}`;
@@ -1493,7 +1736,7 @@ Terms: ${dt.terms}`;
 }
 
 /* ------------------ OFFLINE SAVE / LOAD ------------------ */
-const JOBS_KEY = 'cv_jobs_v1';
+const JOBS_KEY = 'cv_jobs_v2';
 
 function getJobs(){
   try { return JSON.parse(localStorage.getItem(JOBS_KEY) || '[]'); }
@@ -1511,7 +1754,8 @@ function saveCurrentJob(type){
   if(type === 'septic') payload = { type:'septic', data: calcSeptic() };
   else if(type === 'pad') payload = { type:'pad', data: calcPad() };
   else if(type === 'clear') payload = { type:'clear', data: calcClear() };
-  else payload = { type:'mulch', data: calcMulch() };
+  else if(type === 'mulch') payload = { type:'mulch', data: calcMulch() };
+  else payload = { type:'bush', data: calcBush() };
 
   const name = (payload.data.customer || '').trim();
   const jobNo = (payload.data.job || '').trim();
@@ -1579,13 +1823,21 @@ function loadJob(id){
     document.getElementById('c_job').value = data.job || '';
     document.getElementById('c_location').value = data.location || '';
     alert('Loaded job ✅ (Verify inputs, then Calculate)');
-  } else {
+  } else if(type === 'mulch'){
     openMulch();
     document.getElementById('m_customer').value = data.customer || '';
     document.getElementById('m_job').value = data.job || '';
     document.getElementById('m_location').value = data.location || '';
     document.getElementById('m_type').value = data.type || 'light';
     applyMulchPreset(true);
+    alert('Loaded job ✅ (Verify inputs, then Calculate)');
+  } else {
+    openBush();
+    document.getElementById('b_customer').value = data.customer || '';
+    document.getElementById('b_job').value = data.job || '';
+    document.getElementById('b_location').value = data.location || '';
+    document.getElementById('b_tier').value = data.tier || 'medium';
+    applyBushTier(false);
     alert('Loaded job ✅ (Verify inputs, then Calculate)');
   }
 }
