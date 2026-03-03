@@ -1608,19 +1608,44 @@ Terms: ${dt.terms}`;
 
   openQuote("Customer Quote (Print/Share)", html, copyText);
 }
-
 /* ------------------ BUSH HOG ------------------ */
 function setBushDayRate(v){
   const el = document.getElementById('b_dayRate');
   if(el) el.value = v;
 }
 
-/* From bush-hog pricing chat:
-   Day $2,400 baseline; min $2,200; tiers:
-   Light $250–$350/ac -> default 300
-   Medium $350–$500/ac -> default 425
-   Heavy $500–$900/ac -> default 650
-*/
+function getBushInternalDailyCost(){
+  const skid = n('b_costSkid');
+  const hog  = n('b_costHog');
+  const del  = n('b_costDelivery');
+  const fuel = n('b_costFuel');
+  const wear = n('b_costWear');
+  const misc = n('b_costMisc');
+  return (skid + hog + del + fuel + wear + misc);
+}
+
+function getBushRecommendedDayRate(){
+  const cost = getBushInternalDailyCost();
+  const profit = n('b_profitDay');
+  // recommended = cost + profit (simple, easy)
+  return Math.max(cost + profit, 0);
+}
+
+function useBushRecommendedDayRate(){
+  const rec = getBushRecommendedDayRate();
+  const cost = getBushInternalDailyCost();
+  const profit = n('b_profitDay');
+
+  document.getElementById('b_dayRate').value = Math.round(rec);
+
+  const el = document.getElementById('b_internalRec');
+  if(el){
+    el.textContent =
+      `Internal daily cost: ${money(cost)} • Target profit/day: ${money(profit)} • Recommended day rate set to: ${money(Math.round(rec))}`;
+  }
+}
+
+/* From your bush-hog chat: tier ranges → defaults */
 function applyBushTier(onlyIfEmpty){
   const tier = document.getElementById('b_tier')?.value || 'medium';
   const presets = {
@@ -1641,6 +1666,15 @@ function applyBushTier(onlyIfEmpty){
     perAcreEl.value = p.perAcre;
     acPerDayEl.value = p.acPerDay;
   }
+
+  // update internal recommendation display (helpful)
+  const cost = getBushInternalDailyCost();
+  const rec = getBushRecommendedDayRate();
+  const el = document.getElementById('b_internalRec');
+  if(el){
+    el.textContent =
+      `Internal daily cost: ${money(cost)} • Recommended day rate: ${money(Math.round(rec))} (tap "USE RECOMMENDED DAY RATE" to set it)`;
+  }
 }
 
 function calcBush(){
@@ -1650,16 +1684,16 @@ function calcBush(){
   const perAcre = n('b_perAcre');
   const acPerDay = Math.max(n('b_acPerDay'), 0.0001);
 
-  const dayRate = n('b_dayRate');      // default 2400
-  const minJob  = n('b_minJob');       // default 2200
+  const dayRate = n('b_dayRate');
+  const minJob  = n('b_minJob');
 
-  const hours   = n('b_hours');        // optional
-  const over8Rate = n('b_over8Rate');  // default 275/hr
+  const hours   = n('b_hours');
+  const over8Rate = n('b_over8Rate');
 
   const travel  = n('b_travel');
   const haulOff = n('b_haulOff');
 
-  const markupPct = n('b_markup'); // optional internal
+  const markupPct = n('b_markup');
 
   const perAcreTotal = acres * perAcre;
 
@@ -1672,7 +1706,7 @@ function calcBush(){
   const overtimeHours = Math.max(hours - 8, 0);
   const overtimeTotal = overtimeHours * over8Rate;
 
-  // Protect your quote: use the max of (per-acre, day-based, minimum) then add extras
+  // Base = max(per-acre, day-based, minimum) + add-ons + overtime
   let base = Math.max(perAcreTotal, dayBasedTotal, minJob);
   base = base + travel + haulOff + overtimeTotal;
 
@@ -1684,6 +1718,15 @@ function calcBush(){
   if(acres > 0) noteParts.push(`Est days: ${rawDays.toFixed(2)} (billed ${billedDays.toFixed(2)})`);
   if(hours > 0) noteParts.push(`Run hrs: ${hours.toFixed(1)} (${overtimeHours.toFixed(1)} OT)`);
   document.getElementById('b_note').textContent = `Tier: ${tier.toUpperCase()} • ` + (noteParts.join(' • ') || 'Enter acres for estimate');
+
+  // keep internal recommendation visible
+  const cost = getBushInternalDailyCost();
+  const rec = getBushRecommendedDayRate();
+  const el = document.getElementById('b_internalRec');
+  if(el){
+    el.textContent =
+      `Internal daily cost: ${money(cost)} • Recommended day rate: ${money(Math.round(rec))} • Current day rate: ${money(dayRate)}`;
+  }
 
   return {
     tier,
@@ -1742,6 +1785,57 @@ Terms: ${dt.terms}`;
 
   openQuote("Verbal Quote (Copy/Share)", html, copyText);
 }
+
+function showBushQuote(){
+  const r = calcBush();
+  const dt = depositAndTerms(r.total);
+
+  // CUSTOMER QUOTE: keep clean — no internal math shown
+  const html = `
+    <h1 class="qTitle">Crest View Construction LLC</h1>
+    <div class="qMuted">Bush Hog Estimate (Skid + 72")</div>
+
+    <div class="qBox">
+      <b>Customer:</b> ${escapeHtml(r.customer || '—')}<br>
+      <b>Job #:</b> ${escapeHtml(r.job || '—')}<br>
+      <b>Location:</b> ${escapeHtml(r.location || '—')}<br>
+      <b>Service:</b> Bush Hog / Vegetation Management<br>
+      <b>Tier:</b> ${escapeHtml(r.tier.toUpperCase())}<br>
+      <b>Acres:</b> ${r.acres || 0}<br>
+      <b>Estimated Duration:</b> ${r.rawDays.toFixed(2)} day(s)
+    </div>
+
+    <div class="qBox qTotal">Total Price: ${money(r.total)}</div>
+
+    <div class="qBox">
+      <b>Deposit to Schedule:</b> ${money(dt.deposit)}<br>
+      <b>Payment Terms:</b> ${escapeHtml(dt.terms)}
+    </div>
+
+    <div class="qBox">
+      <b>Scope:</b> Bush hogging / vegetation maintenance using skid steer with 72" cutter.
+      Final pricing subject to site access, terrain, hidden debris, and actual vegetation density.
+    </div>
+
+    <div class="sigline"></div><div>Customer Signature</div>
+    <div class="sigline"></div><div>Date</div>
+  `;
+
+  const copyText =
+`Crest View Construction LLC — QUOTE
+Bush Hog (Skid + 72")
+Customer: ${r.customer || "—"} | Job#: ${r.job || "—"}
+Location: ${r.location || "—"}
+Tier: ${r.tier.toUpperCase()}
+Acres: ${r.acres || 0}
+Estimated duration: ${r.rawDays.toFixed(2)} day(s)
+Total: ${money(r.total)}
+Deposit: ${money(dt.deposit)}
+Terms: ${dt.terms}`;
+
+  openQuote("Customer Quote (Print/Share)", html, copyText);
+}
+
 
 function showBushQuote(){
   const r = calcBush();
